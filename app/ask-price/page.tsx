@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { createClient } from '@/lib/supabase/client';
 import type { PriceAnswer } from '@/lib/schemas';
 
 export default function AskPricePage() {
@@ -10,6 +11,14 @@ export default function AskPricePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [answers, setAnswers] = useState<PriceAnswer[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? null);
+    });
+  }, []);
 
   async function handleSubmit() {
     setIsLoading(true);
@@ -25,7 +34,11 @@ export default function AskPricePage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setErrorMessage(data.error ?? 'Terjadi kesalahan, coba lagi');
+        if (response.status === 403 && data.requiresLogin) {
+          setErrorMessage(data.error);
+        } else {
+          setErrorMessage(data.error ?? 'Terjadi kesalahan, coba lagi');
+        }
         return;
       }
 
@@ -58,8 +71,27 @@ export default function AskPricePage() {
     return `${diffDays} hari lalu`;
   }
 
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.reload();
+  }
+
   return (
     <div className="max-w-xl mx-auto py-10 px-4 space-y-4">
+       <div className="flex justify-between items-center text-sm">
+        {userEmail ? (
+          <>
+            <span className="text-muted-foreground">Login sebagai {userEmail}</span>
+            <button onClick={handleLogout} className="underline text-muted-foreground">Keluar</button>
+          </>
+        ) : (
+          <a href="/login?redirectTo=/ask-price" className="underline text-muted-foreground">
+            Login untuk tanya tanpa batas
+          </a>
+        )}
+      </div>
+      
       <div>
         <h1 className="text-2xl font-semibold">Tanya Harga</h1>
         <p className="text-sm text-muted-foreground">
@@ -79,9 +111,14 @@ export default function AskPricePage() {
       </Button>
 
       {errorMessage && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-          {errorMessage}
-        </p>
+        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+          <p>{errorMessage}</p>
+          {errorMessage.includes('Login') && (
+            <a href="/login?redirectTo=/ask-price" className="underline font-medium">
+              Login sekarang
+            </a>
+          )}
+        </div>
       )}
 
       {answers.length > 0 && (

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { parseGroqPriceReport } from '@/lib/groq';
 import { priceReportResponseSchema } from '@/lib/schemas';
+import { createClient as createServerSupabaseClient } from '@/lib/supabase/server';
+import { checkAnonymousQuota, setQuotaCookie } from '@/lib/quota';
 
 export async function POST(request: Request) {
   try {
@@ -18,6 +20,23 @@ export async function POST(request: Request) {
 
     const existingCommodityNames = commodities?.map((c) => c.name) ?? [];
     const existingMarketNames = markets?.map((m) => m.name) ?? [];
+
+    // Cek Kuota
+    const supabaseServer = await createServerSupabaseClient();
+    const { data: { user } } = await supabaseServer.auth.getUser();
+
+    if (!user) {
+      const { allowed } = await checkAnonymousQuota('anon_report_price_at');
+      if (!allowed) {
+        return NextResponse.json(
+          {
+            error: 'Jatah laporan gratis hari ini sudah habis. Login untuk lapor tanpa batas.',
+            requiresLogin: true,
+          },
+          { status: 403 }
+        );
+      }
+    }
 
     // 2. Panggil Groq untuk parsing teks bebas jadi JSON
     const aiResult = await parseGroqPriceReport(rawText, existingCommodityNames, existingMarketNames);
@@ -53,6 +72,7 @@ export async function POST(request: Request) {
         unit: item.unit,
         price_per_base_unit: item.price / item.quantity,
         raw_text: rawText,
+        reporter_id: user?.id ?? null,
       }));
 
       const { error: insertError, count } = await supabaseAdmin
@@ -68,11 +88,20 @@ export async function POST(request: Request) {
     }
 
     // 6. Return hasil ke frontend
-    return NextResponse.json({
+    const responseBody = {
       saved: itemsToSave,
       savedCount,
       needsConfirmation: itemsNeedingConfirmation,
-    });
+    };
+
+    const response = NextResponse.json(responseBody);
+
+    if (!user) {
+      setQuotaCookie(response, 'anon_report_price_at');
+    }
+
+    return response;
+    
   } catch (error) {
     console.error('Unexpected error in /api/report-price:', error);
     return NextResponse.json({ error: 'Terjadi kesalahan server' }, { status: 500 });

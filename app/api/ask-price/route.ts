@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { parseGroqPriceQuestion } from '@/lib/groq';
 import { priceQuestionSchema, type PriceAnswer } from '@/lib/schemas';
+import { createClient as createServerSupabaseClient } from '@/lib/supabase/server';
+import { checkAnonymousQuota, setQuotaCookie } from '@/lib/quota';
 
 export async function POST(request: Request) {
   try {
@@ -18,6 +20,23 @@ export async function POST(request: Request) {
 
     const existingCommodityNames = commodities?.map((c) => c.name) ?? [];
     const existingMarketNames = markets?.map((m) => m.name) ?? [];
+
+    //cek kuota
+    const supabaseServer = await createServerSupabaseClient();
+    const { data: { user } } = await supabaseServer.auth.getUser();
+
+    if (!user) {
+        const { allowed } = await checkAnonymousQuota('anon_ask_price_at');
+        if (!allowed) {
+            return NextResponse.json(
+            {
+                error: 'Jatah tanya harga gratis hari ini sudah habis. Login untuk tanya tanpa batas.',
+                requiresLogin: true,
+            },
+            { status: 403 }
+            );
+        }
+    }
 
     // 2. Panggil Groq untuk extract intent (bukan extract data harga)
     const aiResult = await parseGroqPriceQuestion(question, existingCommodityNames, existingMarketNames);
@@ -64,7 +83,14 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ answers });
+    const response = NextResponse.json({ answers });
+
+    if (!user) {
+        setQuotaCookie(response, 'anon_ask_price_at');
+    }
+
+    return response;
+    
   } catch (error) {
     console.error('Unexpected error in /api/ask-price:', error);
     return NextResponse.json({ error: 'Terjadi kesalahan server' }, { status: 500 });
