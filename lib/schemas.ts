@@ -17,6 +17,26 @@ export const priceReportResponseSchema = z.object({
   items: z.array(priceReportItemSchema),
 });
 
+// Schema untuk hasil extract intent pertanyaan (Epic 5 — beda dari priceReportSchema
+// yang untuk hasil extract laporan harga)
+export const priceQuestionSchema = z.object({
+  commodities: z.array(z.string().min(1)).min(1),
+  market: z.string().nullable(),
+});
+
+export type PriceQuestion = z.infer<typeof priceQuestionSchema>;
+
+// Struktur 1 jawaban yang dikembalikan ke user setelah query database
+export type PriceAnswer = {
+  commodity: string;
+  found: boolean;
+  market?: string;
+  price?: number;
+  quantity?: number;
+  unit?: string;
+  reportedAt?: string;
+};
+
 // Tipe TypeScript otomatis diturunkan dari schema Zod di atas —
 // jadi gak perlu tulis interface terpisah, cukup 1 sumber kebenaran
 export type PriceReportItem = z.infer<typeof priceReportItemSchema>;

@@ -66,3 +66,58 @@ export async function parseGroqPriceReport(
 
   return JSON.parse(content);
 }
+
+function buildQuestionSystemPrompt(existingCommodities: string[], existingMarkets: string[]): string {
+  return `Kamu adalah parser pertanyaan harga pasar tradisional Indonesia.
+
+  Tugas kamu: dari pertanyaan bebas user, ekstrak KOMODITAS apa saja yang ditanyakan dan PASAR mana (kalau disebutkan).
+
+  Daftar komoditas yang ADA di sistem:
+  ${existingCommodities.join(', ') || '(belum ada data)'}
+
+  Daftar pasar yang ADA di sistem:
+  ${existingMarkets.join(', ') || '(belum ada data)'}
+
+  Aturan:
+  - Cocokkan nama komoditas yang disebut user ke nama yang PALING MIRIP dari daftar di atas (misal "cabe" → "Cabai Rawit", "telor" → "Telur").
+  - Kalau user menyebut beberapa komoditas sekaligus (misal "cabe telor tomat"), masukkan semua ke array "commodities".
+  - Kalau user TIDAK menyebutkan nama pasar tertentu, set "market" ke null.
+  - Kalau user menyebutkan pasar yang mirip dengan daftar di atas, cocokkan ke nama yang sudah ada.
+
+  Balas HANYA dalam format JSON berikut, tanpa teks tambahan:
+  {
+    "commodities": ["string"],
+    "market": "string atau null"
+  }`;
+}
+
+export async function parseGroqPriceQuestion(
+  question: string,
+  existingCommodities: string[],
+  existingMarkets: string[]
+) {
+  const response = await fetch(GROQ_API_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'openai/gpt-oss-20b',
+      messages: [
+        { role: 'system', content: buildQuestionSystemPrompt(existingCommodities, existingMarkets) },
+        { role: 'user', content: question },
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.1,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Groq API error (${response.status}): ${errorText}`);
+  }
+
+  const data = await response.json();
+  return JSON.parse(data.choices[0].message.content);
+}
