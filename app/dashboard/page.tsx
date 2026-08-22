@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { createClient as createServerSupabaseClient } from '@/lib/supabase/server';
 import { getPriceIndicator } from '@/lib/price-indicator';
-import { aggregateByCommodity } from '@/lib/price-aggregation'; // 🆕 BARU
+import { aggregateByCommodity } from '@/lib/price-aggregation'; 
 import { FilterControls } from './filter-controls';
 import { WatchlistButton } from './watchlist-button';
 
