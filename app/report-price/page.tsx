@@ -92,7 +92,10 @@ export default function ReportPricePage() {
         {userEmail ? (
           <>
             <span className="text-muted-foreground">Login sebagai {userEmail}</span>
-            <button onClick={handleLogout} className="underline text-muted-foreground">Keluar</button>
+            <div className="flex items-center gap-3">
+              <a href="/report-price/history" className="underline text-muted-foreground">Riwayat</a>
+              <button onClick={handleLogout} className="underline text-muted-foreground">Keluar</button>
+            </div>
           </>
         ) : (
           <a href="/login?redirectTo=/report-price" className="underline text-muted-foreground">
