@@ -85,22 +85,22 @@ export default async function LandingPage() {
             </p>
 
             {/* SPOTLIGHT UTAMA: Tanya Harga Direct to /ask-price */}
-            <div className="bg-white p-3.5 rounded-3xl border border-[#E8E1D5] shadow-sm hover:shadow-md transition-shadow max-w-xl space-y-2">
+            <div className="bg-white p-3 sm:p-3.5 rounded-2xl sm:rounded-3xl border border-[#E8E1D5] shadow-sm max-w-xl space-y-2">
               <form action="/ask-price" method="GET" className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   name="q"
-                  placeholder='Contoh: "cabe rawit sama telur di pasar induk berapa?"'
-                  className="w-full px-4 py-3 text-sm bg-[#FBF8F3] rounded-2xl text-[#223326] placeholder:text-[#5C6E60]/50 border border-[#E8E1D5] focus:outline-none focus:border-[#3B6543]"
+                  placeholder='Contoh: "cabe rawit sama telur berapa?"'
+                  className="w-full px-4 py-3 text-sm bg-[#FBF8F3] rounded-xl sm:rounded-2xl text-[#223326] placeholder:text-[#5C6E60]/50 border border-[#E8E1D5] focus:outline-none focus:border-[#3B6543]"
                 />
                 <Button
                   type="submit"
-                  className="bg-[#3B6543] text-[#FBF8F3] hover:bg-[#2D4E33] font-medium px-6 py-3 rounded-2xl shrink-0"
+                  className="bg-[#3B6543] text-[#FBF8F3] hover:bg-[#2D4E33] font-medium px-6 py-3 rounded-xl sm:rounded-2xl shrink-0 w-full sm:w-auto text-center"
                 >
                   Tanya AI
                 </Button>
               </form>
-              <div className="flex items-center justify-between px-2 pt-1 text-xs text-[#5C6E60]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between px-1 pt-1 text-xs text-[#5C6E60] gap-1">
                 <span>Tanya harga tanpa perlu isi form rumit</span>
                 <Link href="/ask-price" className="text-[#3B6543] font-semibold hover:underline">
                   Buka Laman Tanya Harga →
