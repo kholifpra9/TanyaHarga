@@ -1,7 +1,9 @@
+import { Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import { createClient as createServerSupabaseClient } from '@/lib/supabase/server';
 import { getPriceIndicator } from '@/lib/price-indicator';
-import { aggregateByCommodity } from '@/lib/price-aggregation'; 
+import { aggregateByCommodity } from '@/lib/price-aggregation';
+import { Navbar } from '@/components/ui/navbar';
 import { FilterControls } from './filter-controls';
 import { WatchlistButton } from './watchlist-button';
 
@@ -17,8 +19,6 @@ export default async function DashboardPage({
 }) {
   const { market, commodity } = await searchParams;
 
-  // Cek siapa yang login, lalu ambil watchlist user itu.
-  // Key-nya sekarang gabungan commodity_id + market_id (bukan cuma commodity_id)
   const supabaseServer = await createServerSupabaseClient();
   const { data: { user } } = await supabaseServer.auth.getUser();
 
@@ -34,8 +34,6 @@ export default async function DashboardPage({
   const { data: markets } = await supabase.from('markets').select('id, name').order('name');
   const { data: commodities } = await supabase.from('commodities').select('id, name').order('name');
 
-  // Query prices MENTAH — tidak lagi langsung ditampilkan per baris, tapi diagregasi
-  // dulu lewat aggregateByCommodity() di bawah
   let query = supabase
     .from('prices')
     .select('commodity_id, market_id, price_per_base_unit, reported_at, commodities!inner(name), markets!inner(name)')
@@ -57,8 +55,6 @@ export default async function DashboardPage({
 
   const aggregated = aggregateByCommodity(rows);
 
-  // Rata-rata 7 hari terakhir per NAMA komoditas — baseline untuk indikator warna.
-  // Logic ini TIDAK BERUBAH dari Epic 4, cuma sekarang dipakai per hasil agregasi, bukan per baris laporan
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -80,70 +76,139 @@ export default async function DashboardPage({
     averageByCommodityName.set(name, values.reduce((sum, v) => sum + v, 0) / values.length);
   });
 
-  // market_id yang sedang difilter (kalau ada) — dipakai untuk watchlist per pasar
   const selectedMarketId = market ? markets?.find((m) => m.name === market)?.id ?? null : null;
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Dashboard Harga</h1>
-        <p className="text-sm text-muted-foreground">
-          {market ? `Rata-rata harga terbaru di ${market}.` : 'Rata-rata harga terbaru dari seluruh pasar.'}
-        </p>
-      </div>
+    <div className="bg-[#FBF8F3] text-[#223326] min-h-screen font-sans antialiased">
+      <Navbar />
 
-      <FilterControls
-        markets={markets ?? []}
-        commodities={commodities ?? []}
-        selectedMarket={market}
-        selectedCommodity={commodity}
-      />
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6">
+        {/* Page Header */}
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#223326]">
+            Dashboard Harga Pasar
+          </h1>
+          <p className="text-xs sm:text-sm text-[#5C6E60]">
+            {market ? `Rata-rata harga terbaru di ${market}.` : 'Rata-rata harga terbaru dari seluruh pasar.'}
+          </p>
+        </div>
 
-      {aggregated.length > 0 ? (
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr className="border-b text-left">
-              <th className="py-2 pr-4">Komoditas</th>
-              <th className="py-2 pr-4">Harga Rata-rata</th>
-              <th className="py-2 pr-4">Sumber</th>
-              <th className="py-2 pr-4">Indikator</th>
-              <th className="py-2 pr-4">Diperbarui</th>
-              <th className="py-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {aggregated.map((item) => {
-              const average7d = averageByCommodityName.get(item.commodityName);
-              const indicator = getPriceIndicator(item.averagePrice, average7d);
-              const watchKey = `${item.commodityId}:${selectedMarketId ?? 'null'}`;
+        {/* Filter Controls */}
+        <Suspense fallback={<div className="h-10 bg-[#E8E1D5]/40 rounded-xl animate-pulse" />}>
+          <FilterControls
+            markets={markets ?? []}
+            commodities={commodities ?? []}
+            selectedMarket={market}
+            selectedCommodity={commodity}
+          />
+        </Suspense>
 
-              return (
-                <tr key={item.commodityId} className="border-b">
-                  <td className="py-2 pr-4">{item.commodityName}</td>
-                  <td className="py-2 pr-4">Rp{Math.round(item.averagePrice).toLocaleString('id-ID')}</td>
-                  <td className="py-2 pr-4 text-muted-foreground">
-                    {item.singleMarketName ?? `${item.marketCount} pasar`}
-                  </td>
-                  <td className="py-2 pr-4">{indicator.emoji} {indicator.label}</td>
-                  <td className="py-2 pr-4 text-muted-foreground">
-                    {new Date(item.latestReportedAt).toLocaleDateString('id-ID')}
-                  </td>
-                  <td className="py-2">
-                    <WatchlistButton
-                      commodityId={item.commodityId}
-                      marketId={selectedMarketId}
-                      initialIsWatched={watchedKeys.has(watchKey)}
-                      isLoggedIn={!!user}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      ) : (
-        <p className="text-sm text-muted-foreground">Belum ada data harga untuk filter ini.</p>
-      )}
+        {/* Data Container */}
+        <div className="bg-white rounded-3xl border border-[#E8E1D5] shadow-sm overflow-hidden p-4 sm:p-6">
+          {aggregated.length > 0 ? (
+            <>
+              {/* TAMPILAN DESKTOP: Tabel */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-sm text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#E8E1D5] text-xs uppercase font-serif text-[#5C6E60] tracking-wider">
+                      <th className="pb-3 pr-4 font-bold">Komoditas</th>
+                      <th className="pb-3 pr-4 font-bold">Harga Rata-rata</th>
+                      <th className="pb-3 pr-4 font-bold">Sumber Pasar</th>
+                      <th className="pb-3 pr-4 font-bold">Indikator</th>
+                      <th className="pb-3 pr-4 font-bold">Diperbarui</th>
+                      <th className="pb-3 text-right font-bold">Watchlist</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#E8E1D5]/60">
+                    {aggregated.map((item) => {
+                      const average7d = averageByCommodityName.get(item.commodityName);
+                      const indicator = getPriceIndicator(item.averagePrice, average7d);
+                      const watchKey = `${item.commodityId}:${selectedMarketId ?? 'null'}`;
+
+                      return (
+                        <tr key={item.commodityId} className="hover:bg-[#FBF8F3] transition-colors">
+                          <td className="py-3.5 pr-4 font-semibold text-[#223326]">{item.commodityName}</td>
+                          <td className="py-3.5 pr-4 font-mono font-bold text-[#3B6543]">
+                            Rp{Math.round(item.averagePrice).toLocaleString('id-ID')}
+                          </td>
+                          <td className="py-3.5 pr-4 text-xs text-[#5C6E60]">
+                            {item.singleMarketName ?? `${item.marketCount} pasar`}
+                          </td>
+                          <td className="py-3.5 pr-4 text-xs font-medium">
+                            {indicator.emoji} {indicator.label}
+                          </td>
+                          <td className="py-3.5 pr-4 text-xs text-[#5C6E60]">
+                            {new Date(item.latestReportedAt).toLocaleDateString('id-ID')}
+                          </td>
+                          <td className="py-3.5 text-right">
+                            <WatchlistButton
+                              commodityId={item.commodityId}
+                              marketId={selectedMarketId}
+                              initialIsWatched={watchedKeys.has(watchKey)}
+                              isLoggedIn={!!user}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* TAMPILAN MOBILE: Card List */}
+              <div className="md:hidden space-y-3">
+                {aggregated.map((item) => {
+                  const average7d = averageByCommodityName.get(item.commodityName);
+                  const indicator = getPriceIndicator(item.averagePrice, average7d);
+                  const watchKey = `${item.commodityId}:${selectedMarketId ?? 'null'}`;
+
+                  return (
+                    <div
+                      key={item.commodityId}
+                      className="p-4 rounded-2xl bg-[#FBF8F3] border border-[#E8E1D5] space-y-2"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h3 className="font-bold text-base text-[#223326]">{item.commodityName}</h3>
+                          <p className="text-xs text-[#5C6E60]">
+                            📍 {item.singleMarketName ?? `${item.marketCount} pasar`}
+                          </p>
+                        </div>
+                        <WatchlistButton
+                          commodityId={item.commodityId}
+                          marketId={selectedMarketId}
+                          initialIsWatched={watchedKeys.has(watchKey)}
+                          isLoggedIn={!!user}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-[#E8E1D5]/60">
+                        <div>
+                          <p className="text-[10px] text-[#5C6E60] uppercase tracking-wider font-semibold">Harga Rata-rata</p>
+                          <p className="font-mono font-bold text-base text-[#3B6543]">
+                            Rp{Math.round(item.averagePrice).toLocaleString('id-ID')}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs font-medium">{indicator.emoji} {indicator.label}</p>
+                          <p className="text-[10px] text-[#5C6E60]">
+                            {new Date(item.latestReportedAt).toLocaleDateString('id-ID')}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div className="py-12 text-center text-xs sm:text-sm text-[#5C6E60]">
+              Belum ada data harga untuk kombinasi filter ini.
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }

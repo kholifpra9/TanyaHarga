@@ -30,24 +30,24 @@ export function FilterControls({
   }
 
   return (
-    <div className="flex gap-3">
+    <div className="flex flex-col sm:flex-row gap-3">
       <select
-        className="border rounded-md px-3 py-2 text-sm"
+        className="w-full sm:w-auto bg-white border border-[#E8E1D5] text-[#223326] rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#3B6543] shadow-sm cursor-pointer"
         value={selectedMarket ?? ''}
         onChange={(e) => updateFilter('market', e.target.value)}
       >
-        <option value="">Semua Pasar</option>
+        <option value="">🛒 Semua Pasar</option>
         {markets.map((m) => (
           <option key={m.id} value={m.name}>{m.name}</option>
         ))}
       </select>
 
       <select
-        className="border rounded-md px-3 py-2 text-sm"
+        className="w-full sm:w-auto bg-white border border-[#E8E1D5] text-[#223326] rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#3B6543] shadow-sm cursor-pointer"
         value={selectedCommodity ?? ''}
         onChange={(e) => updateFilter('commodity', e.target.value)}
       >
-        <option value="">Semua Komoditas</option>
+        <option value="">🌾 Semua Komoditas</option>
         {commodities.map((c) => (
           <option key={c.id} value={c.name}>{c.name}</option>
         ))}
