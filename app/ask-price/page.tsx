@@ -1,18 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Navbar } from '@/components/ui/navbar';
 import { createClient } from '@/lib/supabase/client';
 import type { PriceAnswer } from '@/lib/schemas';
 
-export default function AskPricePage() {
-  const [question, setQuestion] = useState('');
+function AskPriceContent() {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get('q') || '';
+
+  const [question, setQuestion] = useState(initialQuery);
   const [isLoading, setIsLoading] = useState(false);
   const [answers, setAnswers] = useState<PriceAnswer[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
+  // Ambil user auth status
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
@@ -20,7 +27,9 @@ export default function AskPricePage() {
     });
   }, []);
 
-  async function handleSubmit() {
+  // Fungsi penanganan submit query
+  const executeQuery = useCallback(async (queryText: string) => {
+    if (!queryText.trim()) return;
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -28,7 +37,7 @@ export default function AskPricePage() {
       const response = await fetch('/api/ask-price', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question: queryText }),
       });
 
       const data = await response.json();
@@ -43,25 +52,27 @@ export default function AskPricePage() {
       }
 
       setAnswers(data.answers);
-    } catch (error) {
+    } catch {
       setErrorMessage('Gagal terhubung ke server. Cek koneksi internet.');
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
 
-  function formatAnswer(answer: PriceAnswer): string {
-    if (!answer.found) {
-      return `${answer.commodity}: belum ada data harga.`;
+  // Otomatis eksekusi pencarian jika ada query 'q' dari URL saat pertama kali halaman dibuka
+  useEffect(() => {
+    if (initialQuery) {
+      executeQuery(initialQuery);
     }
+  }, [initialQuery, executeQuery]);
 
-    const reportedDate = answer.reportedAt ? new Date(answer.reportedAt) : null;
-    const timeAgo = reportedDate ? formatTimeAgo(reportedDate) : '';
-
-    return `${answer.commodity} di ${answer.market}: Rp${answer.price?.toLocaleString('id-ID')} / ${answer.quantity} ${answer.unit}${timeAgo ? `, dilaporkan ${timeAgo}` : ''}`;
+  function handleSubmit() {
+    executeQuery(question);
   }
 
-  function formatTimeAgo(date: Date): string {
+  function formatTimeAgo(dateStr?: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
     const diffMs = Date.now() - date.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
 
@@ -78,58 +89,126 @@ export default function AskPricePage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto py-10 px-4 space-y-4">
-       <div className="flex justify-between items-center text-sm">
+    <main className="max-w-2xl mx-auto px-6 py-12 space-y-6">
+      {/* Status Bar */}
+      <div className="flex justify-between items-center text-xs font-medium bg-[#F4EFE6] px-4 py-2.5 rounded-xl border border-[#E8E1D5] text-[#5C6E60]">
         {userEmail ? (
           <>
-            <span className="text-muted-foreground">Login sebagai {userEmail}</span>
-            <button onClick={handleLogout} className="underline text-muted-foreground">Keluar</button>
+            <span>Masuk sebagai <strong className="text-[#223326]">{userEmail}</strong></span>
+            <button onClick={handleLogout} className="text-[#C86D51] hover:underline">
+              Keluar
+            </button>
           </>
         ) : (
-          <a href="/login?redirectTo=/ask-price" className="underline text-muted-foreground">
-            Login untuk tanya tanpa batas
-          </a>
+          <>
+            <span>Tanya gratis terbatas untuk tamu</span>
+            <Link href="/login?redirectTo=/ask-price" className="text-[#3B6543] font-semibold hover:underline">
+              Login untuk tanya tanpa batas →
+            </Link>
+          </>
         )}
       </div>
-      
-      <div>
-        <h1 className="text-2xl font-semibold">Tanya Harga</h1>
-        <p className="text-sm text-muted-foreground">
-          Tanya harga komoditas dengan kalimat bebas, AI akan carikan jawabannya.
+
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-serif font-bold text-[#223326]">
+          Tanya Harga Bahan Pokok
+        </h1>
+        <p className="text-sm text-[#5C6E60] leading-relaxed">
+          Tanyakan harga komoditas dalam bahasa sehari-hari.
         </p>
       </div>
 
-      <Textarea
-        placeholder='Contoh: "cabe telor tomat di pasar induk berapa?"'
-        value={question}
-        onChange={(e) => setQuestion(e.target.value)}
-        rows={3}
-      />
+      {/* Input Form */}
+      <div className="bg-white p-5 rounded-3xl border border-[#E8E1D5] shadow-sm space-y-4">
+        <Textarea
+          placeholder='Contoh: "cabe telor tomat di pasar induk berapa?"'
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          rows={3}
+          className="w-full p-3.5 text-sm bg-[#FBF8F3] rounded-2xl text-[#223326] placeholder:text-[#5C6E60]/50 border border-[#E8E1D5] focus:outline-none focus:border-[#3B6543] resize-none"
+        />
 
-      <Button onClick={handleSubmit} disabled={isLoading || question.trim() === ''}>
-        {isLoading ? 'Mencari...' : 'Tanya'}
-      </Button>
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-[#5C6E60]/80">
+            💡 Boleh tanya beberapa komoditas sekaligus
+          </span>
+          <Button
+            onClick={handleSubmit}
+            disabled={isLoading || question.trim() === ''}
+            className="bg-[#3B6543] text-[#FBF8F3] hover:bg-[#2D4E33] font-medium px-6 py-2.5 rounded-xl"
+          >
+            {isLoading ? 'Mencari Data...' : 'Tanya Sekarang'}
+          </Button>
+        </div>
+      </div>
 
+      {/* Error State */}
       {errorMessage && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-          <p>{errorMessage}</p>
+        <div className="text-sm text-[#C86D51] bg-[#FDF2F0] border border-[#F5D5CE] rounded-2xl p-4 space-y-2">
+          <p className="font-medium">{errorMessage}</p>
           {errorMessage.includes('Login') && (
-            <a href="/login?redirectTo=/ask-price" className="underline font-medium">
-              Login sekarang
-            </a>
+            <Link href="/login?redirectTo=/ask-price" className="inline-block text-xs font-bold underline">
+              Login Ke Akun Kamu
+            </Link>
           )}
         </div>
       )}
 
+      {/* Results */}
       {answers.length > 0 && (
-        <div className="border rounded-lg p-4 space-y-2">
-          {answers.map((answer, i) => (
-            <p key={i} className={`text-sm ${answer.found ? '' : 'text-muted-foreground italic'}`}>
-              {formatAnswer(answer)}
-            </p>
-          ))}
+        <div className="bg-white rounded-3xl border border-[#E8E1D5] p-6 shadow-sm space-y-4">
+          <h2 className="font-serif font-bold text-lg border-b border-[#E8E1D5] pb-3 text-[#223326]">
+            Hasil Pantauan Harga
+          </h2>
+          <div className="divide-y divide-[#E8E1D5]">
+            {answers.map((ans, i) => (
+              <div key={i} className="py-3 flex items-start justify-between gap-4">
+                <div className="space-y-0.5">
+                  <p className="font-semibold text-sm capitalize text-[#223326]">
+                    {ans.commodity}
+                  </p>
+                  {ans.found ? (
+                    <p className="text-xs text-[#5C6E60]">
+                      📍 {ans.market} · dilaporkan {formatTimeAgo(ans.reportedAt)}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-[#C86D51] italic">
+                      Belum ada laporan harga terbaru untuk komoditas ini.
+                    </p>
+                  )}
+                </div>
+
+                {ans.found && (
+                  <div className="text-right shrink-0">
+                    <p className="font-mono font-bold text-base text-[#3B6543]">
+                      Rp{ans.price?.toLocaleString('id-ID')}
+                    </p>
+                    <p className="text-[11px] text-[#5C6E60]">
+                      per {ans.quantity} {ans.unit}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
+    </main>
+  );
+}
+
+export default function AskPricePage() {
+  return (
+    <div className="bg-[#FBF8F3] text-[#223326] min-h-screen font-sans antialiased">
+      <Navbar />
+      <Suspense fallback={
+        <div className="text-center py-12 text-sm text-[#5C6E60]">
+          Memuat halaman tanya harga...
+        </div>
+      }>
+        <AskPriceContent />
+      </Suspense>
     </div>
   );
 }
