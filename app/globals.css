@@ -128,3 +128,15 @@
     @apply font-sans;
   }
 }
+
+@layer base {
+  :root {
+    --bg-organic: #FBF8F3;       /* Background Cream Hangat */
+    --surface-organic: #F4EFE6;  /* Card Background Subtle */
+    --primary-market: #3B6543;   /* Sage/Forest Green Utama */
+    --accent-terracotta: #C86D51;/* Terracotta Accent */
+    --text-main: #223326;         /* Dark Olive/Slate Text */
+    --text-muted: #5C6E60;        /* Muted Greenish Text */
+    --border-soft: #E8E1D5;       /* Warm Soft Border */
+  }
+}
