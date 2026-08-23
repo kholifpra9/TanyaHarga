@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Navbar } from '@/components/ui/navbar';
-import { createClient } from '@/lib/supabase/client';
 import type { PriceAnswer } from '@/lib/schemas';
 
 function AskPriceContent() {
@@ -17,17 +16,7 @@ function AskPriceContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [answers, setAnswers] = useState<PriceAnswer[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  // Ambil user auth status
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      setUserEmail(data.user?.email ?? null);
-    });
-  }, []);
-
-  // Fungsi penanganan submit query
   const executeQuery = useCallback(async (queryText: string) => {
     if (!queryText.trim()) return;
     setIsLoading(true);
@@ -59,7 +48,7 @@ function AskPriceContent() {
     }
   }, []);
 
-  // Otomatis eksekusi pencarian jika ada query 'q' dari URL saat pertama kali halaman dibuka
+  // Otomatis eksekusi pencarian dari query URL
   useEffect(() => {
     if (initialQuery) {
       executeQuery(initialQuery);
@@ -82,40 +71,15 @@ function AskPriceContent() {
     return `${diffDays} hari lalu`;
   }
 
-  async function handleLogout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    window.location.reload();
-  }
-
   return (
     <main className="max-w-2xl mx-auto px-6 py-12 space-y-6">
-      {/* Status Bar */}
-      <div className="flex justify-between items-center text-xs font-medium bg-[#F4EFE6] px-4 py-2.5 rounded-xl border border-[#E8E1D5] text-[#5C6E60]">
-        {userEmail ? (
-          <>
-            <span>Masuk sebagai <strong className="text-[#223326]">{userEmail}</strong></span>
-            <button onClick={handleLogout} className="text-[#C86D51] hover:underline">
-              Keluar
-            </button>
-          </>
-        ) : (
-          <>
-            <span>Tanya gratis terbatas untuk tamu</span>
-            <Link href="/login?redirectTo=/ask-price" className="text-[#3B6543] font-semibold hover:underline">
-              Login untuk tanya tanpa batas →
-            </Link>
-          </>
-        )}
-      </div>
-
-      {/* Header */}
+      {/* Header Title */}
       <div className="space-y-2">
         <h1 className="text-3xl font-serif font-bold text-[#223326]">
           Tanya Harga Bahan Pokok
         </h1>
         <p className="text-sm text-[#5C6E60] leading-relaxed">
-          Tanyakan harga komoditas dalam bahasa sehari-hari.
+          Tanyakan harga komoditas dalam bahasa sehari-hari. AI kami akan memahami pertanyaanmu dan mencari data laporan warga terbaru.
         </p>
       </div>
 
@@ -143,7 +107,7 @@ function AskPriceContent() {
         </div>
       </div>
 
-      {/* Error State */}
+      {/* Error Message & Quota Limit */}
       {errorMessage && (
         <div className="text-sm text-[#C86D51] bg-[#FDF2F0] border border-[#F5D5CE] rounded-2xl p-4 space-y-2">
           <p className="font-medium">{errorMessage}</p>
@@ -155,7 +119,7 @@ function AskPriceContent() {
         </div>
       )}
 
-      {/* Results */}
+      {/* Answer Cards */}
       {answers.length > 0 && (
         <div className="bg-white rounded-3xl border border-[#E8E1D5] p-6 shadow-sm space-y-4">
           <h2 className="font-serif font-bold text-lg border-b border-[#E8E1D5] pb-3 text-[#223326]">
