@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer Rounded Square -->
+  <rect width="64" height="64" rx="18" fill="#3B6543"/>
+  
+  <!-- Hole Tag -->
+  <circle cx="14" cy="14" r="3.5" fill="#FBF8F3"/>
+  
+  <!-- Leaf Symbol -->
+  <path d="M32 14C32 14 39 18 39 23C39 28 32 30.5 32 30.5C32 30.5 25 28 25 23C25 18 32 14 32 14Z" fill="#FBF8F3"/>
+  
+  <!-- Question Mark Stem -->
+  <path d="M26.5 33.5C26.5 30.5 29 29.5 32 29.5C35 29.5 37.5 30.5 37.5 33.5C37.5 36.5 32 38.5 32 42.5" stroke="#FBF8F3" stroke-width="3.5" stroke-linecap="round"/>
+  
+  <!-- Terracotta Dot Accent -->
+  <circle cx="32" cy="48.5" r="2.75" fill="#C86D51"/>
+</svg>

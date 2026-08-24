@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
+import { Logo } from '@/components/ui/logo';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
@@ -58,7 +59,7 @@ export function Navbar() {
     setShowLogoutConfirm(false);
     setIsMenuOpen(false);
     setIsMobileNavOpen(false);
-    window.location.href = '/';
+    window.location.href = '/?notice=logout-success';
   }
 
   const navLinks = [
@@ -76,10 +77,7 @@ export function Navbar() {
           
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <span className="w-3 h-3 rounded-full bg-[#3B6543] group-hover:scale-125 transition-transform" />
-            <span className="text-lg sm:text-xl font-bold tracking-tight text-[#223326] font-serif">
-              TanyaHarga
-            </span>
+            <Logo showTagline={false} />
           </Link>
 
           {/* Nav Items Desktop */}
