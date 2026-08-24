@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -12,11 +13,13 @@ export function Navbar() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setMounted(true);
     const supabase = createClient();
     
     supabase.auth.getUser().then(({ data }) => {
@@ -256,9 +259,9 @@ export function Navbar() {
       </header>
 
       {/* Modal Logout Confirmation */}
-      {showLogoutConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl border border-[#E8E1D5] max-w-xs sm:max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
+      {showLogoutConfirm && mounted && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl border border-[#E8E1D5] max-w-xs sm:max-w-sm w-full p-6 shadow-2xl space-y-4 text-center my-auto animate-in zoom-in-95 duration-150">
             <div className="w-12 h-12 bg-[#FDF2F0] text-[#C86D51] rounded-full flex items-center justify-center mx-auto text-xl font-bold">
               🚪
             </div>
@@ -288,7 +291,8 @@ export function Navbar() {
               </Button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body // Portal memaksa elemen ini menempel langsung di document.body terluar
       )}
     </>
   );

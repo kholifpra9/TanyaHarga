@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   description: "Papan harga pasar tradisional dari warga untuk warga.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="id"
@@ -39,10 +39,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         "font-sans"
       )}
     >
+      {/* Cukup flex flex-col biasa tanpa animate-page-smooth */}
       <body className="min-h-full flex flex-col bg-[#FBF8F3] text-[#223326]">
-        <div className="flex-1 animate-page-smooth">
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   );
