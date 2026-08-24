@@ -13,7 +13,7 @@ function TopLoaderContent() {
     setIsLoading(false);
   }, [pathname, searchParams]);
 
-  // Deteksi klik pada setiap tautan <a> internal
+  // Deteksi tap/klik pada tautan <a> internal
   useEffect(() => {
     function handleAnchorClick(e: MouseEvent) {
       const anchor = (e.target as HTMLElement).closest('a');
@@ -21,7 +21,7 @@ function TopLoaderContent() {
         const targetUrl = new URL(anchor.href, window.location.href);
         const currentUrl = new URL(window.location.href);
 
-        // Jika mengeklik link internal halaman yang berbeda
+        // Jika mengarah ke halaman lain dalam domain yang sama
         if (
           targetUrl.origin === currentUrl.origin &&
           (targetUrl.pathname !== currentUrl.pathname || targetUrl.search !== currentUrl.search)
