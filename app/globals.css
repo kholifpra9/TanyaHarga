@@ -118,18 +118,6 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
-  }
-}
-
-@layer base {
   :root {
     --bg-organic: #FBF8F3;       /* Background Cream Hangat */
     --surface-organic: #F4EFE6;  /* Card Background Subtle */
@@ -139,4 +127,39 @@
     --text-muted: #5C6E60;        /* Muted Greenish Text */
     --border-soft: #E8E1D5;       /* Warm Soft Border */
   }
+  html {
+    scrollbar-gutter: stable;
+    overflow-y: scroll;
+  }
+  body {
+    font-family: var(--font-sans);
+    background-color: #FBF8F3;
+    color: #223326;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-serif);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-smooth {
+  animation: pageFadeIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
