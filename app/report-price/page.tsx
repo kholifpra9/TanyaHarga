@@ -54,6 +54,7 @@ export default function ReportPricePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           commodity: item.commodity,
+          category: item.category,
           market: item.market,
           price: item.price,
           quantity: item.quantity,

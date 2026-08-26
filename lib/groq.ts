@@ -3,35 +3,47 @@ const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 function buildSystemPrompt(existingCommodities: string[], existingMarkets: string[]): string {
   return `Kamu adalah parser laporan harga pasar tradisional Indonesia.
 
-Tugas kamu: ubah kalimat bebas dari user menjadi data terstruktur.
+  Tugas kamu: ubah kalimat bebas dari user menjadi data terstruktur.
 
-Daftar komoditas yang SUDAH ADA di sistem (cocokkan ke nama ini kalau maksudnya sama):
-${existingCommodities.join(', ') || '(belum ada data)'}
+  Daftar komoditas yang SUDAH ADA di sistem (cocokkan ke nama ini kalau maksudnya sama):
+  ${existingCommodities.join(', ') || '(belum ada data)'}
 
-Daftar pasar yang SUDAH ADA di sistem:
-${existingMarkets.join(', ') || '(belum ada data)'}
+  Daftar pasar yang SUDAH ADA di sistem:
+  ${existingMarkets.join(', ') || '(belum ada data)'}
 
-Aturan:
-- Kalau nama komoditas/pasar dari user cocok (walau beda penulisan, misal "cabe rawit" vs "Cabai Rawit") dengan daftar di atas, PAKAI nama yang sudah ada di daftar, dan set is_new_commodity/is_new_market ke false.
-- Kalau benar-benar belum ada di daftar, gunakan nama yang ditulis user, dan set is_new_commodity/is_new_market ke true.
-- Pecah satuan pecahan (misal "1/2 kg") menjadi quantity: 0.5, unit: "kg".
-- Kalau tidak disebutkan quantity, asumsikan quantity: 1.
-- Kalau satuan tidak disebutkan sama sekali, asumsikan "kg" sebagai default (satuan paling umum untuk bahan pokok pasar).
+  Aturan Kategori (category):
+  - Tentukan kategori (category) komoditas secara mendetail dan spesifik dalam huruf kecil.
+  - Contoh kategori yang umum:
+    * "ikan" (ikan gurame, lele, nila, udang, cumi, laut/tawar)
+    * "daging" (daging sapi, daging ayam, jeroan)
+    * "bumbu" (cabai, bawang, jahe, kunyit, merica)
+    * "sayuran" (bayam, kangkung, wortel, kubis, tomat)
+    * "karbohidrat" (beras, kentang, singkong)
+    * "minyak" (minyak goreng, mentega)
+    * "sembako" (gula, garam, tepung)
+    * "buah" (pisang, jeruk, apel)
+  - Jika komoditas yang dimasukkan tidak cocok dengan contoh di atas, buatlah kategori baru yang singkat, relevan, dan konsisten (misal: "olahan_susu", "kacang_kacangan").
 
-Balas HANYA dalam format JSON berikut, tanpa teks tambahan:
-{
-  "items": [
-    {
-      "commodity": "string",
-      "price": number,
-      "quantity": number,
-      "unit": "string",
-      "market": "string",
-      "is_new_commodity": boolean,
-      "is_new_market": boolean
-    }
-  ]
-}`;
+  Aturan Lainnya:
+  - Jika komoditas/pasar cocok dengan daftar existing, set is_new_commodity/is_new_market ke false. Jika belum ada, set ke true.
+  - Pecah satuan pecahan ("1/2 kg" -> quantity: 0.5, unit: "kg").
+  - Jika tidak ada satuan/quantity, gunakan default 1 kg.
+
+  Balas HANYA dalam format JSON:
+  {
+    "items": [
+      {
+        "commodity": "string",
+        "category": "string",
+        "price": number,
+        "quantity": number,
+        "unit": "string",
+        "market": "string",
+        "is_new_commodity": boolean,
+        "is_new_market": boolean
+      }
+    ]
+  }`;
 }
 
 export async function parseGroqPriceReport(

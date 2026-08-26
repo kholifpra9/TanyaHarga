@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 const confirmSchema = z.object({
   commodity: z.string().min(1),
+  category: z.string().optional(),
   market: z.string().min(1),
   price: z.number().positive(),
   quantity: z.number().positive(),
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Data tidak valid' }, { status: 400 });
     }
 
-    const { commodity, market, price, quantity, unit } = parsed.data;
+    const { commodity, category, market, price, quantity, unit } = parsed.data;
 
     // 1. Cari commodity yang sudah ada by name, kalau belum ada, buat baru
     const { data: existingCommodity } = await supabaseAdmin
@@ -30,9 +31,14 @@ export async function POST(request: Request) {
 
     let commodityId = existingCommodity?.id;
     if (!commodityId) {
+      // PERBAIKAN: Masukkan field `category` saat insert ke tabel commodities
       const { data: newCommodity, error } = await supabaseAdmin
         .from('commodities')
-        .insert({ name: commodity, base_unit: unit })
+        .insert({
+          name: commodity,
+          category: category?.trim().toLowerCase() || 'lainnya',
+          base_unit: unit,
+        })
         .select('id')
         .single();
       if (error) throw error;
@@ -57,7 +63,7 @@ export async function POST(request: Request) {
       marketId = newMarket.id;
     }
 
-    // 3. Baru insert ke prices, setelah commodity_id & market_id pasti ada
+    // 3. Insert ke prices
     const { error: priceError } = await supabaseAdmin.from('prices').insert({
       commodity_id: commodityId,
       market_id: marketId,

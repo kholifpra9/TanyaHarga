@@ -3,6 +3,7 @@ import { z } from 'zod';
 // Struktur 1 item hasil parsing AI
 export const priceReportItemSchema = z.object({
   commodity: z.string().min(1),
+  category: z.string().optional(),
   price: z.number().positive(),
   quantity: z.number().positive(),
   unit: z.string().min(1),
