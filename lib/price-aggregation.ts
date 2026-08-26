@@ -1,6 +1,7 @@
-type PriceRow = {
+export type PriceRow = {
   commodity_id: string;
   commodity_name: string;
+  base_unit?: string;
   market_id: string;
   market_name: string;
   price_per_base_unit: number;
@@ -10,10 +11,11 @@ type PriceRow = {
 export type CommodityAggregate = {
   commodityId: string;
   commodityName: string;
+  baseUnit: string;
   averagePrice: number;
   marketCount: number;
   latestReportedAt: string;
-  singleMarketName?: string; // terisi kalau cuma ada 1 pasar (biasanya karena sedang difilter)
+  singleMarketName?: string; 
 };
 
 export function aggregateByCommodity(rows: PriceRow[]): CommodityAggregate[] {
@@ -46,6 +48,7 @@ export function aggregateByCommodity(rows: PriceRow[]): CommodityAggregate[] {
     result.push({
       commodityId,
       commodityName: groupRows[0].commodity_name,
+      baseUnit: groupRows[0].base_unit ?? 'kg',
       averagePrice,
       marketCount: groupRows.length,
       latestReportedAt,

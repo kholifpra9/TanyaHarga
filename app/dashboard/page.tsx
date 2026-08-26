@@ -9,7 +9,7 @@ import { WatchlistButton } from './watchlist-button';
 
 type DashboardSearchParams = {
   market?: string;
-  commodity?: string;
+  category?: string;
 };
 
 export default async function DashboardPage({
@@ -17,7 +17,7 @@ export default async function DashboardPage({
 }: {
   searchParams: Promise<DashboardSearchParams>;
 }) {
-  const { market, commodity } = await searchParams;
+  const { market, category } = await searchParams;
 
   const supabaseServer = await createServerSupabaseClient();
   const { data: { user } } = await supabaseServer.auth.getUser();
@@ -32,27 +32,38 @@ export default async function DashboardPage({
   }
 
   const { data: markets } = await supabase.from('markets').select('id, name').order('name');
-  const { data: commodities } = await supabase.from('commodities').select('id, name').order('name');
+  
+  // Ambil daftar kategori unik dari tabel commodities untuk dropdown filter
+  const { data: rawCommodities } = await supabase.from('commodities').select('category').order('category');
+  const categories = Array.from(new Set(rawCommodities?.map((c) => c.category).filter(Boolean))) as string[];
 
+  // Query tabel prices + join commodities (mengambil name, base_unit, category)
   let query = supabase
     .from('prices')
-    .select('commodity_id, market_id, price_per_base_unit, reported_at, commodities!inner(name), markets!inner(name)')
+    .select('commodity_id, market_id, price_per_base_unit, quantity, unit, reported_at, commodities!inner(name, base_unit, category), markets!inner(name)')
     .order('reported_at', { ascending: false });
 
   if (market) query = query.eq('markets.name', market);
-  if (commodity) query = query.eq('commodities.name', commodity);
+  if (category) query = query.eq('commodities.category', category); // Filter berdasarkan Kategori
 
   const { data: rawPrices } = await query;
 
-  const rows = (rawPrices ?? []).map((row) => ({
-    commodity_id: row.commodity_id,
-    commodity_name: (row.commodities as unknown as { name: string }).name,
-    market_id: row.market_id,
-    market_name: (row.markets as unknown as { name: string }).name,
-    price_per_base_unit: row.price_per_base_unit,
-    reported_at: row.reported_at,
-  }));
+  const rows = (rawPrices ?? []).map((row) => {
+    const commodityData = row.commodities as unknown as { name: string; base_unit: string; category: string };
+    return {
+      commodity_id: row.commodity_id,
+      commodity_name: commodityData.name,
+      base_unit: commodityData.base_unit ?? row.unit ?? 'kg',
+      market_id: row.market_id,
+      market_name: (row.markets as unknown as { name: string }).name,
+      price_per_base_unit: row.price_per_base_unit,
+      quantity: row.quantity,
+      unit: row.unit,
+      reported_at: row.reported_at,
+    };
+  });
 
+  // Tetap di-aggregate PER KOMODITAS
   const aggregated = aggregateByCommodity(rows);
 
   const sevenDaysAgo = new Date();
@@ -93,17 +104,17 @@ export default async function DashboardPage({
           </p>
         </div>
 
-        {/* Filter Controls */}
+        {/* Filter Controls (Pasar & Kategori) */}
         <Suspense fallback={<div className="h-10 bg-[#E8E1D5]/40 rounded-xl animate-pulse" />}>
           <FilterControls
             markets={markets ?? []}
-            commodities={commodities ?? []}
+            categories={categories}
             selectedMarket={market}
-            selectedCommodity={commodity}
+            selectedCategory={category}
           />
         </Suspense>
 
-        {/* Data Container */}
+        {/* Data Container (Menampilkan Tabel Per Komoditas) */}
         <div className="bg-white rounded-3xl border border-[#E8E1D5] shadow-sm overflow-hidden p-4 sm:p-6">
           {aggregated.length > 0 ? (
             <>
@@ -131,6 +142,7 @@ export default async function DashboardPage({
                           <td className="py-3.5 pr-4 font-semibold text-[#223326]">{item.commodityName}</td>
                           <td className="py-3.5 pr-4 font-mono font-bold text-[#3B6543]">
                             Rp{Math.round(item.averagePrice).toLocaleString('id-ID')}
+                            <span className="text-xs font-normal text-[#5C6E60]"> / {item.baseUnit ?? 'kg'}</span>
                           </td>
                           <td className="py-3.5 pr-4 text-xs text-[#5C6E60]">
                             {item.singleMarketName ?? `${item.marketCount} pasar`}
@@ -188,6 +200,7 @@ export default async function DashboardPage({
                           <p className="text-[10px] text-[#5C6E60] uppercase tracking-wider font-semibold">Harga Rata-rata</p>
                           <p className="font-mono font-bold text-base text-[#3B6543]">
                             Rp{Math.round(item.averagePrice).toLocaleString('id-ID')}
+                            <span className="text-xs font-normal text-[#5C6E60]"> / {item.baseUnit ?? 'kg'}</span>
                           </p>
                         </div>
                         <div className="text-right">
