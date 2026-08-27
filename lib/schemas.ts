@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Struktur 1 item hasil parsing AI
+// Struktur 1 item hasil parsing AI untuk Laporan Harga
 export const priceReportItemSchema = z.object({
   commodity: z.string().min(1),
   category: z.string().optional(),
@@ -12,17 +12,15 @@ export const priceReportItemSchema = z.object({
   is_new_market: z.boolean(),
 });
 
-// AI diminta return object berisi array "items" (bukan array polos di root,
-// karena beberapa mode JSON output di LLM lebih stabil kalau root-nya object)
 export const priceReportResponseSchema = z.object({
   items: z.array(priceReportItemSchema),
 });
 
-// Schema untuk hasil extract intent pertanyaan (Epic 5 — beda dari priceReportSchema
-// yang untuk hasil extract laporan harga)
+// Schema untuk hasil extract intent Tanya Harga (Epic 5)
 export const priceQuestionSchema = z.object({
   commodities: z.array(z.string().min(1)).min(1),
   market: z.string().nullable(),
+  intent: z.enum(['cheapest', 'pricy', 'latest']).optional().default('latest'), // Tambahan intent
 });
 
 export type PriceQuestion = z.infer<typeof priceQuestionSchema>;
@@ -36,9 +34,8 @@ export type PriceAnswer = {
   quantity?: number;
   unit?: string;
   reportedAt?: string;
+  note?: string; // Tambahan catatan intent (misal: "Termurah")
 };
 
-// Tipe TypeScript otomatis diturunkan dari schema Zod di atas —
-// jadi gak perlu tulis interface terpisah, cukup 1 sumber kebenaran
 export type PriceReportItem = z.infer<typeof priceReportItemSchema>;
 export type PriceReportResponse = z.infer<typeof priceReportResponseSchema>;
