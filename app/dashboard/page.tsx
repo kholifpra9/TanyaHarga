@@ -3,21 +3,26 @@ import { supabase } from '@/lib/supabase';
 import { createClient as createServerSupabaseClient } from '@/lib/supabase/server';
 import { getPriceIndicator } from '@/lib/price-indicator';
 import { aggregateByCommodity } from '@/lib/price-aggregation';
+import { getPaginationMeta } from '@/lib/pagination'; // <--- Import Helper Pagination
 import { Navbar } from '@/components/ui/navbar';
+import { PaginationControls } from '@/components/ui/pagination-controls'; // <--- Import Reusable Component
 import { FilterControls } from './filter-controls';
 import { WatchlistButton } from './watchlist-button';
 
 type DashboardSearchParams = {
   market?: string;
   category?: string;
+  page?: string;
 };
+
+const ITEMS_PER_PAGE = 8;
 
 export default async function DashboardPage({
   searchParams,
 }: {
   searchParams: Promise<DashboardSearchParams>;
 }) {
-  const { market, category } = await searchParams;
+  const { market, category, page } = await searchParams;
 
   const supabaseServer = await createServerSupabaseClient();
   const { data: { user } } = await supabaseServer.auth.getUser();
@@ -33,18 +38,16 @@ export default async function DashboardPage({
 
   const { data: markets } = await supabase.from('markets').select('id, name').order('name');
   
-  // Ambil daftar kategori unik dari tabel commodities untuk dropdown filter
   const { data: rawCommodities } = await supabase.from('commodities').select('category').order('category');
   const categories = Array.from(new Set(rawCommodities?.map((c) => c.category).filter(Boolean))) as string[];
 
-  // Query tabel prices + join commodities (mengambil name, base_unit, category)
   let query = supabase
     .from('prices')
     .select('commodity_id, market_id, price_per_base_unit, quantity, unit, reported_at, commodities!inner(name, base_unit, category), markets!inner(name)')
     .order('reported_at', { ascending: false });
 
   if (market) query = query.eq('markets.name', market);
-  if (category) query = query.eq('commodities.category', category); // Filter berdasarkan Kategori
+  if (category) query = query.eq('commodities.category', category);
 
   const { data: rawPrices } = await query;
 
@@ -63,8 +66,12 @@ export default async function DashboardPage({
     };
   });
 
-  // Tetap di-aggregate PER KOMODITAS
+  // Agregasi Data
   const aggregated = aggregateByCommodity(rows);
+
+  // INTEGRASI LIB PAGINATION
+  const pagination = getPaginationMeta(page, aggregated.length, ITEMS_PER_PAGE);
+  const paginatedItems = aggregated.slice(pagination.startIndex, pagination.endIndex);
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -94,7 +101,6 @@ export default async function DashboardPage({
       <Navbar />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6">
-        {/* Page Header */}
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#223326]">
             Dashboard Harga Pasar
@@ -104,7 +110,6 @@ export default async function DashboardPage({
           </p>
         </div>
 
-        {/* Filter Controls (Pasar & Kategori) */}
         <Suspense fallback={<div className="h-10 bg-[#E8E1D5]/40 rounded-xl animate-pulse" />}>
           <FilterControls
             markets={markets ?? []}
@@ -114,11 +119,10 @@ export default async function DashboardPage({
           />
         </Suspense>
 
-        {/* Data Container (Menampilkan Tabel Per Komoditas) */}
         <div className="bg-white rounded-3xl border border-[#E8E1D5] shadow-sm overflow-hidden p-4 sm:p-6">
-          {aggregated.length > 0 ? (
+          {paginatedItems.length > 0 ? (
             <>
-              {/* TAMPILAN DESKTOP: Tabel */}
+              {/* TAMPILAN DESKTOP */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm text-left border-collapse">
                   <thead>
@@ -132,7 +136,7 @@ export default async function DashboardPage({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E8E1D5]/60">
-                    {aggregated.map((item) => {
+                    {paginatedItems.map((item) => {
                       const average7d = averageByCommodityName.get(item.commodityName);
                       const indicator = getPriceIndicator(item.averagePrice, average7d);
                       const watchKey = `${item.commodityId}:${selectedMarketId ?? 'null'}`;
@@ -168,9 +172,9 @@ export default async function DashboardPage({
                 </table>
               </div>
 
-              {/* TAMPILAN MOBILE: Card List */}
+              {/* TAMPILAN MOBILE */}
               <div className="md:hidden space-y-3">
-                {aggregated.map((item) => {
+                {paginatedItems.map((item) => {
                   const average7d = averageByCommodityName.get(item.commodityName);
                   const indicator = getPriceIndicator(item.averagePrice, average7d);
                   const watchKey = `${item.commodityId}:${selectedMarketId ?? 'null'}`;
@@ -214,6 +218,12 @@ export default async function DashboardPage({
                   );
                 })}
               </div>
+
+              {/* MENGGUNAKAN INFORMASI DARI LIB/PAGINATION */}
+              <PaginationControls
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+              />
             </>
           ) : (
             <div className="py-12 text-center text-xs sm:text-sm text-[#5C6E60]">
