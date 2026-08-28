@@ -13,6 +13,7 @@ export default function ReportPricePage() {
   const [savedItems, setSavedItems] = useState<PriceReportItem[]>([]);
   const [pendingItems, setPendingItems] = useState<PriceReportItem[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   async function handleSubmit() {
     if (!rawText.trim()) return;
@@ -79,7 +80,7 @@ export default function ReportPricePage() {
       <Navbar />
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6">
-        {/* Header Title & Riwayat Link */}
+        {/* Header Title & Action Buttons */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E8E1D5] pb-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#223326]">
@@ -89,18 +90,46 @@ export default function ReportPricePage() {
               Tulis catatan belanjaanmu hari ini dengan kalimat bebas. AI kami yang merapikannya.
             </p>
           </div>
-          <Link
-            href="/report-price/history"
-            className="inline-flex items-center gap-1 text-xs font-semibold text-[#3B6543] hover:underline bg-[#3B6543]/10 px-3 py-2 rounded-xl self-start sm:self-auto"
-          >
-            📜 Riwayat Saya
-          </Link>
+
+          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+            {/* Button Help / Panduan */}
+            <button
+              onClick={() => setShowHelpModal(true)}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#3B6543] bg-white border border-[#E8E1D5] hover:bg-[#FBF8F3] px-3 py-2 rounded-xl transition-colors shadow-sm"
+            >
+              <span className="bg-[#3B6543] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">?</span>
+              Panduan Lapor
+            </button>
+
+            <Link
+              href="/report-price/history"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[#3B6543] hover:underline bg-[#3B6543]/10 px-3 py-2 rounded-xl"
+            >
+              📜 Riwayat
+            </Link>
+          </div>
+        </div>
+
+        {/* Info Banner Tata Cara Singkat */}
+        <div className="bg-[#3B6543]/5 border border-[#3B6543]/20 rounded-2xl p-3.5 space-y-1.5 text-xs">
+          <div className="flex items-center justify-between font-bold text-[#3B6543]">
+            <span>💡 Tips Format Penulisan Laporan:</span>
+            <button
+              onClick={() => setShowHelpModal(true)}
+              className="underline hover:text-[#2D4E33] text-[11px]"
+            >
+              Lihat Contoh Lengkap
+            </button>
+          </div>
+          <p className="text-[#5C6E60]">
+            Sebutkan <strong className="text-[#223326]">Nama Pasar</strong>, <strong className="text-[#223326]">Nama Barang</strong>, <strong className="text-[#223326]">Harga</strong>, dan <strong className="text-[#223326]">Satuan (kg, liter, ons, ikat, pcs)</strong> agar AI dapat mengenali laporanmu secara akurat.
+          </p>
         </div>
 
         {/* Input Form Box */}
         <div className="bg-white p-4 sm:p-6 rounded-3xl border border-[#E8E1D5] shadow-sm space-y-4">
           <Textarea
-            placeholder='Contoh: "Pasar Induk hari ini cabai rawit 45rb, telur 26rb/kg, bayam 2rb per ikat"'
+            placeholder='Contoh: "Pasar Induk Cianjur hari ini cabai rawit merah 45rb/kg, minyak goreng 16rb/liter, bayam 3rb per ikat, telur ras 28rb"'
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}
             rows={4}
@@ -108,8 +137,8 @@ export default function ReportPricePage() {
           />
 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <span className="text-xs text-[#5C6E60]">
-              💡 Kamu bisa sebutkan nama pasar, komoditas, dan nominal harga sekaligus.
+            <span className="text-[11px] text-[#5C6E60]">
+              ⚖️ Sertakan satuan acuan seperti <em>kg, liter, ons, ikat, atau pcs</em>.
             </span>
             <Button
               onClick={handleSubmit}
@@ -120,6 +149,78 @@ export default function ReportPricePage() {
             </Button>
           </div>
         </div>
+
+        {/* Modal Help / Tata Cara Melaporkan */}
+        {showHelpModal && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 border border-[#E8E1D5] shadow-xl animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-[#E8E1D5] pb-3">
+                <h3 className="font-serif font-bold text-lg text-[#223326] flex items-center gap-2">
+                  <span>📖</span> Tata Cara & Petunjuk Lapor
+                </h3>
+                <button
+                  onClick={() => setShowHelpModal(false)}
+                  className="text-[#5C6E60] hover:text-[#223326] font-bold text-lg w-7 h-7 rounded-full bg-[#FBF8F3] flex items-center justify-center"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4 text-xs text-[#5C6E60] max-h-[65vh] overflow-y-auto pr-1">
+                {/* Komponen Wajib */}
+                <div className="space-y-2">
+                  <h4 className="font-bold text-[#223326] text-sm">1. Komponen Wajib Laporan:</h4>
+                  <ul className="list-disc pl-4 space-y-1 leading-relaxed">
+                    <li><strong>Nama Pasar:</strong> Sebutkan lokasi pasar (contoh: <em>Pasar Induk, Pasar Cipanas, Pasar Pasir Hayam</em>).</li>
+                    <li><strong>Nama Barang:</strong> Komoditas yang dibeli (contoh: <em>Cabai Rawit, Daging Ayam, Ikan Gurame, Beras</em>).</li>
+                    <li><strong>Nominal Harga:</strong> Angka harga (contoh: <em>45rb, 45000, 45 ribu</em>).</li>
+                    <li><strong>Satuan (Unit):</strong> Wajib disertakan agar perhitungan akurat.</li>
+                  </ul>
+                </div>
+
+                {/* Contoh Satuan */}
+                <div className="bg-[#FBF8F3] p-3 rounded-2xl border border-[#E8E1D5] space-y-1">
+                  <h4 className="font-bold text-[#3B6543]">⚖️ Contoh Satuan (Unit) yang Didukung:</h4>
+                  <p className="leading-relaxed">
+                    • <strong>kg / kilogram:</strong> Cabai, Beras, Daging, Telur<br/>
+                    • <strong>liter:</strong> Minyak Goreng, Susu<br/>
+                    • <strong>ons:</strong> Bawang, Bumbu dapur<br/>
+                    • <strong>ikat:</strong> Bayam, Kangkung, Daun Bawang<br/>
+                    • <strong>pcs / buah:</strong> Tahu, Tempe, Kelapa
+                  </p>
+                </div>
+
+                {/* Saran Kategori */}
+                <div className="space-y-1.5">
+                  <h4 className="font-bold text-[#223326]">🏷️ Saran Kategori Komoditas (Otomatis Diisi AI):</h4>
+                  <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                    <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🐟 <strong>ikan:</strong> Gurame, Nila, Lele</span>
+                    <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🥩 <strong>daging:</strong> Sapi, Ayam, Telur</span>
+                    <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🌶️ <strong>bumbu:</strong> Cabai, Bawang</span>
+                    <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🥬 <strong>sayuran:</strong> Bayam, Wortel</span>
+                    <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🌾 <strong>karbohidrat:</strong> Beras, Kentang</span>
+                    <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🌻 <strong>minyak:</strong> Minyak Goreng</span>
+                  </div>
+                </div>
+
+                {/* Contoh Kalimat */}
+                <div className="space-y-1">
+                  <h4 className="font-bold text-[#223326]">📝 Contoh Kalimat Laporan yang Bagus:</h4>
+                  <p className="p-2.5 bg-emerald-50 text-emerald-900 rounded-xl border border-emerald-200 italic font-mono text-[11px]">
+                    "Pasar Cipanas hari ini gurame 40rb per kg, bawang merah 1/2 kg 16rb, dan bayam 3rb per ikat"
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                onClick={() => setShowHelpModal(false)}
+                className="w-full bg-[#3B6543] text-white hover:bg-[#2D4E33] rounded-xl font-medium text-xs py-2.5"
+              >
+                Saya Mengerti, Mulai Melaporkan
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Error Notification */}
         {errorMessage && (
@@ -179,7 +280,7 @@ export default function ReportPricePage() {
                     <div className="flex gap-1.5 pt-0.5">
                       {item.is_new_commodity && (
                         <span className="bg-[#FEF08A] text-[#854D0E] px-2 py-0.5 rounded text-[10px] font-bold">
-                          Komoditas Baru
+                          Komoditas Baru ({item.category ?? 'umum'})
                         </span>
                       )}
                       {item.is_new_market && (
