@@ -2,8 +2,18 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient as createServerSupabaseClient } from '@/lib/supabase/server';
 import { Navbar } from '@/components/ui/navbar';
+import { getPaginationMeta } from '@/lib/pagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
 
-export default async function ReportPriceHistoryPage() {
+type PageProps = {
+  searchParams: Promise<{ page?: string }>;
+};
+
+const ITEMS_PER_PAGE = 8;
+
+export default async function ReportPriceHistoryPage({ searchParams }: PageProps) {
+  const { page } = await searchParams;
+
   const supabaseServer = await createServerSupabaseClient();
   const { data: { user } } = await supabaseServer.auth.getUser();
 
@@ -11,18 +21,18 @@ export default async function ReportPriceHistoryPage() {
     redirect('/login?redirectTo=/report-price/history');
   }
 
+  // 1. Ambil seluruh data riwayat milik user
   const { data: rawPrices, error } = await supabaseServer
     .from('prices')
     .select('id, price, quantity, unit, price_per_base_unit, reported_at, commodities!inner(name), markets!inner(name)')
     .eq('reporter_id', user.id)
-    .order('reported_at', { ascending: false })
-    .limit(50);
+    .order('reported_at', { ascending: false });
 
   if (error) {
     console.error('Error fetching report history:', error);
   }
 
-  const rows = (rawPrices ?? []).map((row) => ({
+  const allRows = (rawPrices ?? []).map((row) => ({
     id: row.id,
     commodityName: (row.commodities as unknown as { name: string }).name,
     marketName: (row.markets as unknown as { name: string }).name,
@@ -32,6 +42,10 @@ export default async function ReportPriceHistoryPage() {
     pricePerBaseUnit: row.price_per_base_unit,
     reportedAt: row.reported_at,
   }));
+
+  // 2. Hitung pagination metadata & slice items
+  const pagination = getPaginationMeta(page, allRows.length, ITEMS_PER_PAGE);
+  const paginatedRows = allRows.slice(pagination.startIndex, pagination.endIndex);
 
   return (
     <div className="bg-[#FBF8F3] text-[#223326] min-h-screen font-sans antialiased">
@@ -45,7 +59,7 @@ export default async function ReportPriceHistoryPage() {
               Riwayat Laporan Saya
             </h1>
             <p className="text-xs sm:text-sm text-[#5C6E60]">
-              Menampilkan {rows.length} catatan laporan terakhir dari akunmu.
+              Menampilkan {allRows.length} total catatan laporan dari akunmu.
             </p>
           </div>
           <Link
@@ -58,7 +72,7 @@ export default async function ReportPriceHistoryPage() {
 
         {/* History Content */}
         <div className="bg-white rounded-3xl border border-[#E8E1D5] p-4 sm:p-6 shadow-sm">
-          {rows.length > 0 ? (
+          {paginatedRows.length > 0 ? (
             <>
               {/* DESKTOP TABLE */}
               <div className="hidden md:block overflow-x-auto">
@@ -74,7 +88,7 @@ export default async function ReportPriceHistoryPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E8E1D5]/60">
-                    {rows.map((row) => (
+                    {paginatedRows.map((row) => (
                       <tr key={row.id} className="hover:bg-[#FBF8F3] transition-colors">
                         <td className="py-3.5 pr-4 text-xs text-[#5C6E60]">
                           {new Date(row.reportedAt).toLocaleDateString('id-ID')}
@@ -98,7 +112,7 @@ export default async function ReportPriceHistoryPage() {
 
               {/* MOBILE CARD LIST */}
               <div className="md:hidden space-y-3">
-                {rows.map((row) => (
+                {paginatedRows.map((row) => (
                   <div
                     key={row.id}
                     className="p-4 rounded-2xl bg-[#FBF8F3] border border-[#E8E1D5] space-y-2"
@@ -131,6 +145,12 @@ export default async function ReportPriceHistoryPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Pagination Controls */}
+              <PaginationControls
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+              />
             </>
           ) : (
             <div className="py-12 text-center text-xs sm:text-sm text-[#5C6E60] space-y-3">

@@ -6,6 +6,8 @@ import { getPriceIndicator } from '@/lib/price-indicator';
 import { aggregateByCommodity } from '@/lib/price-aggregation';
 import { WatchlistButton } from '@/app/dashboard/watchlist-button';
 import { Navbar } from '@/components/ui/navbar';
+import { getPaginationMeta } from '@/lib/pagination';
+import { PaginationControls } from '@/components/ui/pagination-controls';
 
 type PriceRow = {
   commodity_id: string;
@@ -16,7 +18,15 @@ type PriceRow = {
   reported_at: string;
 };
 
-export default async function WatchlistPage() {
+type PageProps = {
+  searchParams: Promise<{ page?: string }>;
+};
+
+const ITEMS_PER_PAGE = 8;
+
+export default async function WatchlistPage({ searchParams }: PageProps) {
+  const { page } = await searchParams;
+
   const supabaseServer = await createServerSupabaseClient();
   const { data: { user } } = await supabaseServer.auth.getUser();
 
@@ -115,7 +125,7 @@ export default async function WatchlistPage() {
     averageByCommodityName.set(name, values.reduce((sum, v) => sum + v, 0) / values.length);
   });
 
-  const views = watchItems.map((item) => {
+  const allViews = watchItems.map((item) => {
     const average7d = averageByCommodityName.get(item.commodityName);
 
     if (item.marketId) {
@@ -139,6 +149,10 @@ export default async function WatchlistPage() {
     };
   });
 
+  // LOGIKA PAGINATION
+  const pagination = getPaginationMeta(page, allViews.length, ITEMS_PER_PAGE);
+  const paginatedViews = allViews.slice(pagination.startIndex, pagination.endIndex);
+
   return (
     <div className="bg-[#FBF8F3] text-[#223326] min-h-screen font-sans antialiased">
       <Navbar />
@@ -151,7 +165,7 @@ export default async function WatchlistPage() {
               Watchlist Saya
             </h1>
             <p className="text-xs sm:text-sm text-[#5C6E60]">
-              Memantau {views.length} komoditas favoritmu secara real-time.
+              Memantau {allViews.length} komoditas favoritmu secara real-time.
             </p>
           </div>
           <Link
@@ -178,7 +192,7 @@ export default async function WatchlistPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E8E1D5]/60">
-                {views.map((item) => (
+                {paginatedViews.map((item) => (
                   <tr key={`${item.commodityId}:${item.marketId ?? 'null'}`} className="hover:bg-[#FBF8F3] transition-colors">
                     <td className="py-3.5 pr-4 font-semibold text-[#223326]">{item.commodityName}</td>
                     <td className="py-3.5 pr-4 font-mono font-bold text-[#3B6543]">
@@ -209,7 +223,7 @@ export default async function WatchlistPage() {
 
           {/* MOBILE CARD LIST */}
           <div className="md:hidden space-y-3">
-            {views.map((item) => (
+            {paginatedViews.map((item) => (
               <div
                 key={`${item.commodityId}:${item.marketId ?? 'null'}`}
                 className="p-4 rounded-2xl bg-[#FBF8F3] border border-[#E8E1D5] space-y-3"
@@ -246,6 +260,12 @@ export default async function WatchlistPage() {
               </div>
             ))}
           </div>
+
+          {/* Pagination Controls */}
+          <PaginationControls
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+          />
         </div>
       </main>
     </div>
