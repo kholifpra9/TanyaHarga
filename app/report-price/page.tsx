@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Navbar } from '@/components/ui/navbar';
+import { HelpModal } from '@/components/ui/help-modal';
 import type { PriceReportItem } from '@/lib/schemas';
 
 export default function ReportPricePage() {
@@ -150,77 +151,57 @@ export default function ReportPricePage() {
           </div>
         </div>
 
-        {/* Modal Help / Tata Cara Melaporkan */}
-        {showHelpModal && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 border border-[#E8E1D5] shadow-xl animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-[#E8E1D5] pb-3">
-                <h3 className="font-serif font-bold text-lg text-[#223326] flex items-center gap-2">
-                  <span>📖</span> Tata Cara & Petunjuk Lapor
-                </h3>
-                <button
-                  onClick={() => setShowHelpModal(false)}
-                  className="text-[#5C6E60] hover:text-[#223326] font-bold text-lg w-7 h-7 rounded-full bg-[#FBF8F3] flex items-center justify-center"
-                >
-                  ✕
-                </button>
-              </div>
+        {/* Modal Help Component */}
+        <HelpModal
+          isOpen={showHelpModal}
+          onClose={() => setShowHelpModal(false)}
+          title="Tata Cara & Petunjuk Lapor"
+          confirmText="Saya Mengerti, Mulai Melaporkan"
+        >
+          {/* Komponen Wajib */}
+          <div className="space-y-2">
+            <h4 className="font-bold text-[#223326] text-sm">1. Komponen Wajib Laporan:</h4>
+            <ul className="list-disc pl-4 space-y-1 leading-relaxed">
+              <li><strong>Nama Pasar:</strong> Sebutkan lokasi pasar (contoh: <em>Pasar Induk, Pasar Cipanas, Pasar Pasir Hayam</em>).</li>
+              <li><strong>Nama Barang:</strong> Komoditas yang dibeli (contoh: <em>Cabai Rawit, Daging Ayam, Ikan Gurame, Beras</em>).</li>
+              <li><strong>Nominal Harga:</strong> Angka harga (contoh: <em>45rb, 45000, 45 ribu</em>).</li>
+              <li><strong>Satuan (Unit):</strong> Wajib disertakan agar perhitungan akurat.</li>
+            </ul>
+          </div>
 
-              <div className="space-y-4 text-xs text-[#5C6E60] max-h-[65vh] overflow-y-auto pr-1">
-                {/* Komponen Wajib */}
-                <div className="space-y-2">
-                  <h4 className="font-bold text-[#223326] text-sm">1. Komponen Wajib Laporan:</h4>
-                  <ul className="list-disc pl-4 space-y-1 leading-relaxed">
-                    <li><strong>Nama Pasar:</strong> Sebutkan lokasi pasar (contoh: <em>Pasar Induk, Pasar Cipanas, Pasar Pasir Hayam</em>).</li>
-                    <li><strong>Nama Barang:</strong> Komoditas yang dibeli (contoh: <em>Cabai Rawit, Daging Ayam, Ikan Gurame, Beras</em>).</li>
-                    <li><strong>Nominal Harga:</strong> Angka harga (contoh: <em>45rb, 45000, 45 ribu</em>).</li>
-                    <li><strong>Satuan (Unit):</strong> Wajib disertakan agar perhitungan akurat.</li>
-                  </ul>
-                </div>
+          {/* Contoh Satuan */}
+          <div className="bg-[#FBF8F3] p-3 rounded-2xl border border-[#E8E1D5] space-y-1">
+            <h4 className="font-bold text-[#3B6543]">⚖️ Contoh Satuan (Unit) yang Didukung:</h4>
+            <p className="leading-relaxed">
+              • <strong>kg / kilogram:</strong> Cabai, Beras, Daging, Telur<br/>
+              • <strong>liter:</strong> Minyak Goreng, Susu<br/>
+              • <strong>ons:</strong> Bawang, Bumbu dapur<br/>
+              • <strong>ikat:</strong> Bayam, Kangkung, Daun Bawang<br/>
+              • <strong>pcs / buah:</strong> Tahu, Tempe, Kelapa
+            </p>
+          </div>
 
-                {/* Contoh Satuan */}
-                <div className="bg-[#FBF8F3] p-3 rounded-2xl border border-[#E8E1D5] space-y-1">
-                  <h4 className="font-bold text-[#3B6543]">⚖️ Contoh Satuan (Unit) yang Didukung:</h4>
-                  <p className="leading-relaxed">
-                    • <strong>kg / kilogram:</strong> Cabai, Beras, Daging, Telur<br/>
-                    • <strong>liter:</strong> Minyak Goreng, Susu<br/>
-                    • <strong>ons:</strong> Bawang, Bumbu dapur<br/>
-                    • <strong>ikat:</strong> Bayam, Kangkung, Daun Bawang<br/>
-                    • <strong>pcs / buah:</strong> Tahu, Tempe, Kelapa
-                  </p>
-                </div>
-
-                {/* Saran Kategori */}
-                <div className="space-y-1.5">
-                  <h4 className="font-bold text-[#223326]">🏷️ Saran Kategori Komoditas (Otomatis Diisi AI):</h4>
-                  <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-                    <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🐟 <strong>ikan:</strong> Gurame, Nila, Lele</span>
-                    <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🥩 <strong>daging:</strong> Sapi, Ayam, Telur</span>
-                    <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🌶️ <strong>bumbu:</strong> Cabai, Bawang</span>
-                    <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🥬 <strong>sayuran:</strong> Bayam, Wortel</span>
-                    <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🌾 <strong>karbohidrat:</strong> Beras, Kentang</span>
-                    <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🌻 <strong>minyak:</strong> Minyak Goreng</span>
-                  </div>
-                </div>
-
-                {/* Contoh Kalimat */}
-                <div className="space-y-1">
-                  <h4 className="font-bold text-[#223326]">📝 Contoh Kalimat Laporan yang Bagus:</h4>
-                  <p className="p-2.5 bg-emerald-50 text-emerald-900 rounded-xl border border-emerald-200 italic font-mono text-[11px]">
-                    "Pasar Cipanas hari ini gurame 40rb per kg, bawang merah 1/2 kg 16rb, dan bayam 3rb per ikat"
-                  </p>
-                </div>
-              </div>
-
-              <Button
-                onClick={() => setShowHelpModal(false)}
-                className="w-full bg-[#3B6543] text-white hover:bg-[#2D4E33] rounded-xl font-medium text-xs py-2.5"
-              >
-                Saya Mengerti, Mulai Melaporkan
-              </Button>
+          {/* Saran Kategori */}
+          <div className="space-y-1.5">
+            <h4 className="font-bold text-[#223326]">🏷️ Saran Kategori Komoditas (Otomatis Diisi AI):</h4>
+            <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+              <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🐟 <strong>ikan:</strong> Gurame, Nila, Lele</span>
+              <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🥩 <strong>daging:</strong> Sapi, Ayam, Telur</span>
+              <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🌶️ <strong>bumbu:</strong> Cabai, Bawang</span>
+              <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🥬 <strong>sayuran:</strong> Bayam, Wortel</span>
+              <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🌾 <strong>karbohidrat:</strong> Beras, Kentang</span>
+              <span className="bg-[#FBF8F3] px-2.5 py-1 rounded-lg border border-[#E8E1D5]">🌻 <strong>minyak:</strong> Minyak Goreng</span>
             </div>
           </div>
-        )}
+
+          {/* Contoh Kalimat */}
+          <div className="space-y-1">
+            <h4 className="font-bold text-[#223326]">📝 Contoh Kalimat Laporan yang Bagus:</h4>
+            <p className="p-2.5 bg-emerald-50 text-emerald-900 rounded-xl border border-emerald-200 italic font-mono text-[11px]">
+              "Pasar Cipanas hari ini gurame 40rb per kg, bawang merah 1/2 kg 16rb, dan bayam 3rb per ikat"
+            </p>
+          </div>
+        </HelpModal>
 
         {/* Error Notification */}
         {errorMessage && (

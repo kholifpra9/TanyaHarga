@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Navbar } from '@/components/ui/navbar';
+import { HelpModal } from '@/components/ui/help-modal';
 import type { PriceAnswer } from '@/lib/schemas';
 
 function AskPriceContent() {
@@ -16,6 +17,7 @@ function AskPriceContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [answers, setAnswers] = useState<PriceAnswer[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   const executeQuery = useCallback(async (queryText: string) => {
     if (!queryText.trim()) return;
@@ -48,7 +50,6 @@ function AskPriceContent() {
     }
   }, []);
 
-  // Otomatis eksekusi pencarian dari query URL
   useEffect(() => {
     if (initialQuery) {
       executeQuery(initialQuery);
@@ -73,13 +74,39 @@ function AskPriceContent() {
 
   return (
     <main className="max-w-2xl mx-auto px-6 py-12 space-y-6">
-      {/* Header Title */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-serif font-bold text-[#223326]">
-          Tanya Harga Bahan Pokok
-        </h1>
-        <p className="text-sm text-[#5C6E60] leading-relaxed">
-          Tanyakan harga komoditas dalam bahasa sehari-hari. AI kami akan memahami pertanyaanmu dan mencari data laporan warga terbaru.
+      {/* Header Title & Action Buttons */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E8E1D5] pb-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#223326]">
+            Tanya Harga Bahan Pokok
+          </h1>
+          <p className="text-xs sm:text-sm text-[#5C6E60] leading-relaxed mt-0.5">
+            Tanyakan harga komoditas dalam bahasa sehari-hari. AI kami akan memahami pertanyaanmu dan mencari data laporan warga terbaru.
+          </p>
+        </div>
+
+        <button
+          onClick={() => setShowHelpModal(true)}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#3B6543] bg-white border border-[#E8E1D5] hover:bg-[#FBF8F3] px-3 py-2 rounded-xl transition-colors shadow-sm self-start sm:self-auto shrink-0"
+        >
+          <span className="bg-[#3B6543] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">?</span>
+          Panduan Tanya
+        </button>
+      </div>
+
+      {/* Info Banner */}
+      <div className="bg-[#3B6543]/5 border border-[#3B6543]/20 rounded-2xl p-3.5 space-y-1.5 text-xs">
+        <div className="flex items-center justify-between font-bold text-[#3B6543]">
+          <span>💡 Tips Tanya Harga:</span>
+          <button
+            onClick={() => setShowHelpModal(true)}
+            className="underline hover:text-[#2D4E33] text-[11px]"
+          >
+            Lihat Contoh Lengkap
+          </button>
+        </div>
+        <p className="text-[#5C6E60]">
+          Kamu bisa menanyakan harga komoditas dalam bahasa sehari-hari. Sebutkan nama komoditas dan lokasi pasar jika ingin hasil yang spesifik.
         </p>
       </div>
 
@@ -106,6 +133,31 @@ function AskPriceContent() {
           </Button>
         </div>
       </div>
+
+      {/* Modal Help Component */}
+      <HelpModal
+        isOpen={showHelpModal}
+        onClose={() => setShowHelpModal(false)}
+        title="Petunjuk & Cara Tanya Harga"
+        icon="💡"
+      >
+        <div className="space-y-2">
+          <h4 className="font-bold text-[#223326] text-sm">Contoh Pertanyaan yang Bisa Kamu Tulis:</h4>
+          <ul className="list-disc pl-4 space-y-1.5 leading-relaxed">
+            <li><strong className="text-[#3B6543]">"cabe telor tomat di pasar induk berapa?"</strong> (mencari beberapa barang di pasar tertentu)</li>
+            <li><strong className="text-[#3B6543]">"berapa harga beras 1 kg di pasar baru?"</strong> (spesifik komoditas & pasar)</li>
+            <li><strong className="text-[#3B6543]">"daging sapi sama daging ayam hari ini berapaan?"</strong> (tanpa menyebut pasar, mengambil data terbaru)</li>
+          </ul>
+        </div>
+
+        <div className="bg-[#FBF8F3] p-3 rounded-2xl border border-[#E8E1D5] space-y-1">
+          <h4 className="font-bold text-[#3B6543]">💡 Catatan Tambahan:</h4>
+          <p className="leading-relaxed text-[11px]">
+            • Kamu bisa menanyakan lebih dari satu komoditas sekaligus dalam satu kalimat.<br />
+            • Jika pasar tidak disebutkan, sistem akan menampilkan data laporan harga terbaru dari pasar mana pun yang tersedia.
+          </p>
+        </div>
+      </HelpModal>
 
       {/* Error Message & Quota Limit */}
       {errorMessage && (
