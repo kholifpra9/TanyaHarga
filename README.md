@@ -1,5 +1,8 @@
 # 🌶️ TanyaHarga
 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-tanyaharga.vercel.app-2ea44f?style=for-the-badge&logo=vercel)](https://tanyaharga.vercel.app/)
+[![API Docs](https://img.shields.io/badge/📖_API_Docs-View_Documentation-blue?style=for-the-badge)](https://tanyaharga.vercel.app/api-docs)
+
 **Community-driven price radar & market transparency for traditional Indonesian markets.**
 
 TanyaHarga collects daily commodity price data from traditional ("pasar tradisional") markets through community reports — vendors, buyers, or anyone can report a price simply by typing a free-form sentence, which an AI then parses into structured data. From there, anyone can **ask for prices**, **view average prices per commodity**, and **watch** their favorite commodities.
@@ -7,6 +10,17 @@ TanyaHarga collects daily commodity price data from traditional ("pasar tradisio
 Built as a portfolio project under a strict **zero-budget** constraint — the entire stack runs on free tiers, with no infrastructure cost.
 
 ---
+
+## 🌐 Live Demo & Access
+
+Experience TanyaHarga live in action without any setup:
+
+| Platform | Link | Description |
+|---|---|---|
+| 🚀 **Web Application** | [**tanyaharga.vercel.app**](https://tanyaharga.vercel.app/) | Try parsing free-form prices directly on the live app |
+| 📖 **API Documentation** | [/api-docs](https://tanyaharga.vercel.app/api-docs) | Interactive reference for the free public API |
+
+> 💡 **Try it instantly:** No sign-up required! Anonymous users get 1 free AI parse/ask query every 24 hours.
 
 ## ✨ Features
 
