@@ -180,14 +180,6 @@ export function Navbar() {
                     >
                       Masuk
                     </Button>
-                    <Button
-                      nativeButton={false}
-                      render={<Link href="/ask-price" />}
-                      size="sm"
-                      className="bg-[#3B6543] text-[#FBF8F3] hover:bg-[#2D4E33] font-medium rounded-full px-4 shadow-sm"
-                    >
-                      Cari Harga
-                    </Button>
                   </div>
                 )}
               </>
