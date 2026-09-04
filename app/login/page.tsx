@@ -15,7 +15,7 @@ function LoginContent() {
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // State loading proteksi auth
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   // State untuk menangani status butuh konfirmasi email
@@ -26,10 +26,8 @@ function LoginContent() {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
-        // Jika sudah login, redirect langsung ke tujuan
         router.replace(redirectTo);
       } else {
-        // Jika belum login, tampilkan form login biasa
         setIsCheckingAuth(false);
       }
     });
@@ -81,50 +79,47 @@ function LoginContent() {
 
       setIsLoading(false);
 
-      // Cek apakah Supabase mewajibkan konfirmasi email (user ada tapi session null)
       if (data.user && !data.session) {
         setIsEmailSent(true);
       } else {
-        // Jika di Supabase "Confirm Email" dimatikan, otomatis ter-login
         router.push(`${redirectTo}?notice=login-success`);
         router.refresh();
       }
     }
   }
 
-  // Tampilan sebentar saat sedang mengecek apakah user sudah login
   if (isCheckingAuth) {
     return (
       <main className="max-w-md mx-auto px-6 py-20 text-center space-y-2">
-        <div className="w-6 h-6 border-2 border-[#E8E1D5] border-t-[#3B6543] rounded-full animate-spin mx-auto" />
-        <p className="text-xs text-[#5C6E60]">Memeriksa status akun...</p>
+        <div className="w-6 h-6 border-2 border-border-soft border-t-primary-market rounded-full animate-spin mx-auto" />
+        <p className="text-xs text-text-muted">Memeriksa status akun...</p>
       </main>
     );
   }
 
   return (
     <main className="max-w-md mx-auto px-6 py-12 sm:py-16">
-      <div className="bg-white rounded-3xl border border-[#E8E1D5] shadow-sm p-6 sm:p-8 space-y-6">
+      <div className="bg-white rounded-3xl border border-border-soft shadow-sm p-6 sm:p-8 space-y-6">
         
         {/* TAMPILAN JIKA EMAIL KONFIRMASI SUDAH DIKIRIM */}
         {isEmailSent ? (
           <div className="text-center space-y-4 py-4 animate-in fade-in zoom-in-95 duration-200">
-            <div className="w-14 h-14 bg-[#3B6543]/10 text-[#3B6543] rounded-full flex items-center justify-center mx-auto text-2xl">
+            <div className="w-14 h-14 bg-primary-market/10 text-primary-market rounded-full flex items-center justify-center mx-auto text-2xl">
               ✉️
             </div>
 
             <div className="space-y-1.5">
-              <h1 className="text-2xl font-serif font-bold text-[#223326]">
+              <h1 className="text-2xl font-serif font-bold text-text-main">
                 Cek Email Kamu
               </h1>
-              <p className="text-xs text-[#5C6E60] leading-relaxed">
+              <p className="text-xs text-text-muted leading-relaxed">
                 Kami telah mengirim tautan konfirmasi pendaftaran ke: <br />
-                <strong className="text-[#223326]">{email}</strong>
+                <strong className="text-text-main">{email}</strong>
               </p>
             </div>
 
-            <div className="p-3.5 bg-[#FBF8F3] border border-[#E8E1D5] rounded-2xl text-xs text-[#5C6E60] text-left space-y-1">
-              <p className="font-semibold text-[#223326]">Langkah selanjutnya:</p>
+            <div className="p-3.5 bg-bg-organic border border-border-soft rounded-2xl text-xs text-text-muted text-left space-y-1">
+              <p className="font-semibold text-text-main">Langkah selanjutnya:</p>
               <ol className="list-decimal list-inside space-y-0.5">
                 <li>Buka inbox / folder spam email kamu.</li>
                 <li>Klik tombol / tautan verifikasi.</li>
@@ -139,14 +134,14 @@ function LoginContent() {
                   setIsEmailSent(false);
                   setMode('login');
                 }}
-                className="w-full bg-[#3B6543] text-white hover:bg-[#2D4E33] font-medium py-2.5 rounded-xl text-xs cursor-pointer"
+                className="w-full bg-primary-market text-bg-organic hover:bg-primary-market/90 font-medium py-2.5 rounded-xl text-xs cursor-pointer"
               >
                 Sudah Verifikasi? Masuk Sekarang
               </Button>
               <button
                 type="button"
                 onClick={() => setIsEmailSent(false)}
-                className="text-xs text-[#5C6E60] hover:underline cursor-pointer"
+                className="text-xs text-text-muted hover:underline cursor-pointer"
               >
                 Ganti Alamat Email
               </button>
@@ -156,7 +151,7 @@ function LoginContent() {
           /* FORM LOGIN / SIGNUP BIASA */
           <>
             {/* Toggle Tab (Masuk vs Daftar) */}
-            <div className="grid grid-cols-2 p-1 bg-[#FBF8F3] border border-[#E8E1D5] rounded-2xl text-xs font-semibold text-[#5C6E60]">
+            <div className="grid grid-cols-2 p-1 bg-bg-organic border border-border-soft rounded-2xl text-xs font-semibold text-text-muted">
               <button
                 type="button"
                 onClick={() => {
@@ -165,8 +160,8 @@ function LoginContent() {
                 }}
                 className={`py-2.5 rounded-xl transition-all cursor-pointer ${
                   mode === 'login'
-                    ? 'bg-white text-[#223326] shadow-sm font-bold'
-                    : 'hover:text-[#223326]'
+                    ? 'bg-white text-text-main shadow-sm font-bold'
+                    : 'hover:text-text-main'
                 }`}
               >
                 Masuk Akun
@@ -179,8 +174,8 @@ function LoginContent() {
                 }}
                 className={`py-2.5 rounded-xl transition-all cursor-pointer ${
                   mode === 'signup'
-                    ? 'bg-white text-[#223326] shadow-sm font-bold'
-                    : 'hover:text-[#223326]'
+                    ? 'bg-white text-text-main shadow-sm font-bold'
+                    : 'hover:text-text-main'
                 }`}
               >
                 Daftar Baru
@@ -189,10 +184,10 @@ function LoginContent() {
 
             {/* Header Title */}
             <div className="space-y-1.5 text-center">
-              <h1 className="text-2xl font-serif font-bold text-[#223326]">
+              <h1 className="text-2xl font-serif font-bold text-text-main">
                 {mode === 'login' ? 'Selamat Datang Kembali' : 'Bergabung dengan Warga'}
               </h1>
-              <p className="text-xs text-[#5C6E60] leading-relaxed">
+              <p className="text-xs text-text-muted leading-relaxed">
                 {mode === 'login'
                   ? 'Login untuk lapor harga tanpa batas dan pantau komoditas favoritmu.'
                   : 'Buat akun dalam hitungan detik untuk mulai berkontribusi dalam catatan pasar.'}
@@ -202,31 +197,31 @@ function LoginContent() {
             {/* Form Input */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-medium text-[#5C6E60]">Email</label>
+                <label className="text-xs font-medium text-text-muted">Email</label>
                 <Input
                   type="email"
                   placeholder="nama@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-[#FBF8F3] border-[#E8E1D5] focus:border-[#3B6543] focus:ring-0 rounded-xl px-4 py-2.5 text-sm"
+                  className="bg-bg-organic border-border-soft focus:border-primary-market focus:ring-0 rounded-xl px-4 py-2.5 text-sm"
                   required
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-medium text-[#5C6E60]">Password</label>
+                <label className="text-xs font-medium text-text-muted">Password</label>
                 <Input
                   type="password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-[#FBF8F3] border-[#E8E1D5] focus:border-[#3B6543] focus:ring-0 rounded-xl px-4 py-2.5 text-sm"
+                  className="bg-bg-organic border-border-soft focus:border-primary-market focus:ring-0 rounded-xl px-4 py-2.5 text-sm"
                   required
                 />
               </div>
 
               {errorMessage && (
-                <div className="text-xs text-[#C86D51] bg-[#FDF2F0] border border-[#F5D5CE] p-3 rounded-xl font-medium">
+                <div className="text-xs text-accent-terracotta bg-[#FDF2F0] border border-[#F5D5CE] p-3 rounded-xl font-medium">
                   {errorMessage}
                 </div>
               )}
@@ -234,7 +229,7 @@ function LoginContent() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#3B6543] text-[#FBF8F3] hover:bg-[#2D4E33] font-medium py-3 rounded-xl shadow-sm transition-all mt-2 cursor-pointer"
+                className="w-full bg-primary-market text-bg-organic hover:bg-primary-market/90 font-medium py-3 rounded-xl shadow-sm transition-all mt-2 cursor-pointer"
               >
                 {isLoading
                   ? 'Memproses...'
@@ -245,13 +240,13 @@ function LoginContent() {
             </form>
 
             {/* Switch Mode Helper Text */}
-            <div className="text-center pt-2 border-t border-[#E8E1D5]/60 text-xs text-[#5C6E60]">
+            <div className="text-center pt-2 border-t border-border-soft/60 text-xs text-text-muted">
               {mode === 'login' ? (
                 <p>
                   Belum punya akun?{' '}
                   <button
                     type="button"
-                    className="text-[#3B6543] font-bold hover:underline cursor-pointer"
+                    className="text-primary-market font-bold hover:underline cursor-pointer"
                     onClick={() => {
                       setMode('signup');
                       setErrorMessage(null);
@@ -265,7 +260,7 @@ function LoginContent() {
                   Sudah punya akun?{' '}
                   <button
                     type="button"
-                    className="text-[#3B6543] font-bold hover:underline cursor-pointer"
+                    className="text-primary-market font-bold hover:underline cursor-pointer"
                     onClick={() => {
                       setMode('login');
                       setErrorMessage(null);
@@ -286,9 +281,9 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <div className="bg-[#FBF8F3] text-[#223326] min-h-screen font-sans antialiased">
+    <div className="bg-bg-organic text-text-main min-h-screen font-sans antialiased">
       <Suspense fallback={
-        <div className="text-center py-12 text-sm text-[#5C6E60]">
+        <div className="text-center py-12 text-sm text-text-muted">
           Memuat halaman login...
         </div>
       }>

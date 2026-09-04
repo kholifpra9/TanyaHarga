@@ -29,8 +29,16 @@ export function WatchlistButton({
     if (!user) return;
 
     if (isWatched) {
-      let deleteQuery = supabase.from('watchlist').delete().eq('commodity_id', commodityId).eq('user_id', user.id);
-      deleteQuery = marketId ? deleteQuery.eq('market_id', marketId) : deleteQuery.is('market_id', null);
+      let deleteQuery = supabase
+        .from('watchlist')
+        .delete()
+        .eq('commodity_id', commodityId)
+        .eq('user_id', user.id);
+
+      deleteQuery = marketId
+        ? deleteQuery.eq('market_id', marketId)
+        : deleteQuery.is('market_id', null);
+
       const { error } = await deleteQuery;
       if (!error) setIsWatched(false);
     } else {
@@ -51,8 +59,8 @@ export function WatchlistButton({
       title={isWatched ? 'Hapus dari watchlist' : 'Tambah ke watchlist'}
       className={`p-2 rounded-xl transition-all cursor-pointer ${
         isWatched
-          ? 'bg-[#FEF08A] text-[#854D0E] border border-[#FDE047]'
-          : 'bg-[#FBF8F3] text-[#5C6E60] border border-[#E8E1D5] hover:border-[#3B6543] hover:text-[#223326]'
+          ? 'bg-accent-terracotta/20 text-accent-terracotta border border-accent-terracotta/40'
+          : 'bg-bg-organic text-text-muted border border-border-soft hover:border-primary-market hover:text-text-main'
       }`}
     >
       <span className="text-base leading-none">{isWatched ? '★' : '☆'}</span>

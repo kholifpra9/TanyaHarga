@@ -48,37 +48,37 @@ export default async function ReportPriceHistoryPage({ searchParams }: PageProps
   const paginatedRows = allRows.slice(pagination.startIndex, pagination.endIndex);
 
   return (
-    <div className="bg-[#FBF8F3] text-[#223326] min-h-screen font-sans antialiased">
+    <div className="bg-bg-organic text-text-main min-h-screen font-sans antialiased">
       <Navbar />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E8E1D5] pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border-soft pb-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#223326]">
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-text-main">
               Riwayat Laporan Saya
             </h1>
-            <p className="text-xs sm:text-sm text-[#5C6E60]">
+            <p className="text-xs sm:text-sm text-text-muted">
               Menampilkan {allRows.length} total catatan laporan dari akunmu.
             </p>
           </div>
           <Link
             href="/report-price"
-            className="inline-flex items-center gap-1 text-xs font-semibold text-[#3B6543] hover:underline bg-[#3B6543]/10 px-3 py-2 rounded-xl self-start sm:self-auto"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-primary-market hover:underline bg-primary-market/10 px-3 py-2 rounded-xl self-start sm:self-auto"
           >
             + Lapor Baru
           </Link>
         </div>
 
         {/* History Content */}
-        <div className="bg-white rounded-3xl border border-[#E8E1D5] p-4 sm:p-6 shadow-sm">
+        <div className="bg-white rounded-3xl border border-border-soft p-4 sm:p-6 shadow-sm">
           {paginatedRows.length > 0 ? (
             <>
               {/* DESKTOP TABLE */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#E8E1D5] text-xs uppercase font-serif text-[#5C6E60] tracking-wider">
+                    <tr className="border-b border-border-soft text-xs uppercase font-serif text-text-muted tracking-wider">
                       <th className="pb-3 pr-4 font-bold">Tanggal</th>
                       <th className="pb-3 pr-4 font-bold">Komoditas</th>
                       <th className="pb-3 pr-4 font-bold">Pasar</th>
@@ -87,21 +87,21 @@ export default async function ReportPriceHistoryPage({ searchParams }: PageProps
                       <th className="pb-3 font-bold text-right">Harga / Satuan Dasar</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E8E1D5]/60">
+                  <tbody className="divide-y divide-border-soft/60">
                     {paginatedRows.map((row) => (
-                      <tr key={row.id} className="hover:bg-[#FBF8F3] transition-colors">
-                        <td className="py-3.5 pr-4 text-xs text-[#5C6E60]">
+                      <tr key={row.id} className="hover:bg-bg-organic transition-colors">
+                        <td className="py-3.5 pr-4 text-xs text-text-muted">
                           {new Date(row.reportedAt).toLocaleDateString('id-ID')}
                         </td>
-                        <td className="py-3.5 pr-4 font-semibold text-[#223326]">{row.commodityName}</td>
-                        <td className="py-3.5 pr-4 text-xs text-[#5C6E60]">{row.marketName}</td>
-                        <td className="py-3.5 pr-4 font-mono font-bold text-[#3B6543]">
+                        <td className="py-3.5 pr-4 font-semibold text-text-main">{row.commodityName}</td>
+                        <td className="py-3.5 pr-4 text-xs text-text-muted">{row.marketName}</td>
+                        <td className="py-3.5 pr-4 font-mono font-bold text-primary-market">
                           Rp{row.price.toLocaleString('id-ID')}
                         </td>
-                        <td className="py-3.5 pr-4 text-xs text-[#5C6E60]">
+                        <td className="py-3.5 pr-4 text-xs text-text-muted">
                           {row.quantity} {row.unit}
                         </td>
-                        <td className="py-3.5 text-right font-mono text-xs font-semibold text-[#223326]">
+                        <td className="py-3.5 text-right font-mono text-xs font-semibold text-text-main">
                           Rp{Math.round(row.pricePerBaseUnit).toLocaleString('id-ID')}
                         </td>
                       </tr>
@@ -115,29 +115,29 @@ export default async function ReportPriceHistoryPage({ searchParams }: PageProps
                 {paginatedRows.map((row) => (
                   <div
                     key={row.id}
-                    className="p-4 rounded-2xl bg-[#FBF8F3] border border-[#E8E1D5] space-y-2"
+                    className="p-4 rounded-2xl bg-bg-organic border border-border-soft space-y-2"
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-bold text-base text-[#223326]">{row.commodityName}</h3>
-                        <p className="text-xs text-[#5C6E60]">📍 {row.marketName}</p>
+                        <h3 className="font-bold text-base text-text-main">{row.commodityName}</h3>
+                        <p className="text-xs text-text-muted">📍 {row.marketName}</p>
                       </div>
-                      <span className="text-[10px] text-[#5C6E60] bg-white px-2 py-0.5 rounded-full border border-[#E8E1D5]">
+                      <span className="text-[10px] text-text-muted bg-white px-2 py-0.5 rounded-full border border-border-soft">
                         {new Date(row.reportedAt).toLocaleDateString('id-ID')}
                       </span>
                     </div>
 
-                    <div className="flex justify-between items-center pt-2 border-t border-[#E8E1D5]/60 text-xs">
+                    <div className="flex justify-between items-center pt-2 border-t border-border-soft/60 text-xs">
                       <div>
-                        <p className="text-[10px] text-[#5C6E60] uppercase tracking-wider font-semibold">Harga Input</p>
-                        <p className="font-mono font-bold text-sm text-[#3B6543]">
+                        <p className="text-[10px] text-text-muted uppercase tracking-wider font-semibold">Harga Input</p>
+                        <p className="font-mono font-bold text-sm text-primary-market">
                           Rp{row.price.toLocaleString('id-ID')}{' '}
-                          <span className="font-normal text-[11px] text-[#5C6E60]">({row.quantity} {row.unit})</span>
+                          <span className="font-normal text-[11px] text-text-muted">({row.quantity} {row.unit})</span>
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[10px] text-[#5C6E60] uppercase tracking-wider font-semibold">Harga Base Unit</p>
-                        <p className="font-mono font-bold text-xs text-[#223326]">
+                        <p className="text-[10px] text-text-muted uppercase tracking-wider font-semibold">Harga Base Unit</p>
+                        <p className="font-mono font-bold text-xs text-text-main">
                           Rp{Math.round(row.pricePerBaseUnit).toLocaleString('id-ID')}
                         </p>
                       </div>
@@ -153,11 +153,11 @@ export default async function ReportPriceHistoryPage({ searchParams }: PageProps
               />
             </>
           ) : (
-            <div className="py-12 text-center text-xs sm:text-sm text-[#5C6E60] space-y-3">
+            <div className="py-12 text-center text-xs sm:text-sm text-text-muted space-y-3">
               <p>Kamu belum pernah membuat laporan harga.</p>
               <Link
                 href="/report-price"
-                className="inline-block bg-[#3B6543] text-white px-4 py-2 rounded-xl text-xs font-medium"
+                className="inline-block bg-primary-market text-white px-4 py-2 rounded-xl text-xs font-medium cursor-pointer"
               >
                 Mulai Lapor Pertama
               </Link>

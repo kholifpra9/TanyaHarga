@@ -3,9 +3,9 @@ import { supabase } from '@/lib/supabase';
 import { createClient as createServerSupabaseClient } from '@/lib/supabase/server';
 import { getPriceIndicator } from '@/lib/price-indicator';
 import { aggregateByCommodity } from '@/lib/price-aggregation';
-import { getPaginationMeta } from '@/lib/pagination'; // <--- Import Helper Pagination
+import { getPaginationMeta } from '@/lib/pagination';
 import { Navbar } from '@/components/layout/navbar';
-import { PaginationControls } from '@/components/ui/pagination-controls'; // <--- Import Reusable Component
+import { PaginationControls } from '@/components/ui/pagination-controls';
 import { FilterControls } from './filter-controls';
 import { WatchlistButton } from './watchlist-button';
 
@@ -97,20 +97,20 @@ export default async function DashboardPage({
   const selectedMarketId = market ? markets?.find((m) => m.name === market)?.id ?? null : null;
 
   return (
-    <div className="bg-[#FBF8F3] text-[#223326] min-h-screen font-sans antialiased">
+    <div className="bg-bg-organic text-text-main min-h-screen font-sans antialiased">
       <Navbar />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6">
         <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#223326]">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-text-main">
             Dashboard Harga Pasar
           </h1>
-          <p className="text-xs sm:text-sm text-[#5C6E60]">
+          <p className="text-xs sm:text-sm text-text-muted">
             {market ? `Rata-rata harga terbaru di ${market}.` : 'Rata-rata harga terbaru dari seluruh pasar.'}
           </p>
         </div>
 
-        <Suspense fallback={<div className="h-10 bg-[#E8E1D5]/40 rounded-xl animate-pulse" />}>
+        <Suspense fallback={<div className="h-10 bg-border-soft/40 rounded-xl animate-pulse" />}>
           <FilterControls
             markets={markets ?? []}
             categories={categories}
@@ -119,14 +119,14 @@ export default async function DashboardPage({
           />
         </Suspense>
 
-        <div className="bg-white rounded-3xl border border-[#E8E1D5] shadow-sm overflow-hidden p-4 sm:p-6">
+        <div className="bg-white rounded-3xl border border-border-soft shadow-sm overflow-hidden p-4 sm:p-6 space-y-6">
           {paginatedItems.length > 0 ? (
             <>
               {/* TAMPILAN DESKTOP */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#E8E1D5] text-xs uppercase font-serif text-[#5C6E60] tracking-wider">
+                    <tr className="border-b border-border-soft text-xs uppercase font-serif text-text-muted tracking-wider">
                       <th className="pb-3 pr-4 font-bold">Komoditas</th>
                       <th className="pb-3 pr-4 font-bold">Harga Rata-rata</th>
                       <th className="pb-3 pr-4 font-bold">Sumber Pasar</th>
@@ -135,26 +135,26 @@ export default async function DashboardPage({
                       <th className="pb-3 text-right font-bold">Watchlist</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E8E1D5]/60">
+                  <tbody className="divide-y divide-border-soft/60">
                     {paginatedItems.map((item) => {
                       const average7d = averageByCommodityName.get(item.commodityName);
                       const indicator = getPriceIndicator(item.averagePrice, average7d);
                       const watchKey = `${item.commodityId}:${selectedMarketId ?? 'null'}`;
 
                       return (
-                        <tr key={item.commodityId} className="hover:bg-[#FBF8F3] transition-colors">
-                          <td className="py-3.5 pr-4 font-semibold text-[#223326]">{item.commodityName}</td>
-                          <td className="py-3.5 pr-4 font-mono font-bold text-[#3B6543]">
+                        <tr key={item.commodityId} className="hover:bg-bg-organic transition-colors">
+                          <td className="py-3.5 pr-4 font-semibold text-text-main">{item.commodityName}</td>
+                          <td className="py-3.5 pr-4 font-mono font-bold text-primary-market">
                             Rp{Math.round(item.averagePrice).toLocaleString('id-ID')}
-                            <span className="text-xs font-normal text-[#5C6E60]"> / {item.baseUnit ?? 'kg'}</span>
+                            <span className="text-xs font-normal text-text-muted"> / {item.baseUnit ?? 'kg'}</span>
                           </td>
-                          <td className="py-3.5 pr-4 text-xs text-[#5C6E60]">
+                          <td className="py-3.5 pr-4 text-xs text-text-muted">
                             {item.singleMarketName ?? `${item.marketCount} pasar`}
                           </td>
                           <td className="py-3.5 pr-4 text-xs font-medium">
                             {indicator.emoji} {indicator.label}
                           </td>
-                          <td className="py-3.5 pr-4 text-xs text-[#5C6E60]">
+                          <td className="py-3.5 pr-4 text-xs text-text-muted">
                             {new Date(item.latestReportedAt).toLocaleDateString('id-ID')}
                           </td>
                           <td className="py-3.5 text-right">
@@ -182,12 +182,12 @@ export default async function DashboardPage({
                   return (
                     <div
                       key={item.commodityId}
-                      className="p-4 rounded-2xl bg-[#FBF8F3] border border-[#E8E1D5] space-y-2"
+                      className="p-4 rounded-2xl bg-bg-organic border border-border-soft space-y-2"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="font-bold text-base text-[#223326]">{item.commodityName}</h3>
-                          <p className="text-xs text-[#5C6E60]">
+                          <h3 className="font-bold text-base text-text-main">{item.commodityName}</h3>
+                          <p className="text-xs text-text-muted">
                             📍 {item.singleMarketName ?? `${item.marketCount} pasar`}
                           </p>
                         </div>
@@ -199,17 +199,17 @@ export default async function DashboardPage({
                         />
                       </div>
 
-                      <div className="flex items-center justify-between pt-2 border-t border-[#E8E1D5]/60">
+                      <div className="flex items-center justify-between pt-2 border-t border-border-soft/60">
                         <div>
-                          <p className="text-[10px] text-[#5C6E60] uppercase tracking-wider font-semibold">Harga Rata-rata</p>
-                          <p className="font-mono font-bold text-base text-[#3B6543]">
+                          <p className="text-[10px] text-text-muted uppercase tracking-wider font-semibold">Harga Rata-rata</p>
+                          <p className="font-mono font-bold text-base text-primary-market">
                             Rp{Math.round(item.averagePrice).toLocaleString('id-ID')}
-                            <span className="text-xs font-normal text-[#5C6E60]"> / {item.baseUnit ?? 'kg'}</span>
+                            <span className="text-xs font-normal text-text-muted"> / {item.baseUnit ?? 'kg'}</span>
                           </p>
                         </div>
                         <div className="text-right">
                           <p className="text-xs font-medium">{indicator.emoji} {indicator.label}</p>
-                          <p className="text-[10px] text-[#5C6E60]">
+                          <p className="text-[10px] text-text-muted">
                             {new Date(item.latestReportedAt).toLocaleDateString('id-ID')}
                           </p>
                         </div>
@@ -226,7 +226,7 @@ export default async function DashboardPage({
               />
             </>
           ) : (
-            <div className="py-12 text-center text-xs sm:text-sm text-[#5C6E60]">
+            <div className="py-12 text-center text-xs sm:text-sm text-text-muted">
               Belum ada data harga untuk kombinasi filter ini.
             </div>
           )}

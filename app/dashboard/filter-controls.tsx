@@ -39,7 +39,7 @@ export function FilterControls({
       {/* Filter Pasar */}
       <select
         disabled={isPending}
-        className="w-full sm:w-auto bg-white border border-[#E8E1D5] text-[#223326] rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#3B6543] shadow-sm cursor-pointer disabled:opacity-60"
+        className="w-full sm:w-auto bg-white border border-border-soft text-text-main rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-primary-market shadow-sm cursor-pointer disabled:opacity-60 transition-colors"
         value={selectedMarket ?? ''}
         onChange={(e) => updateFilter('market', e.target.value)}
       >
@@ -52,7 +52,7 @@ export function FilterControls({
       {/* Filter Kategori */}
       <select
         disabled={isPending}
-        className="w-full sm:w-auto bg-white border border-[#E8E1D5] text-[#223326] rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-[#3B6543] shadow-sm cursor-pointer disabled:opacity-60 capitalize"
+        className="w-full sm:w-auto bg-white border border-border-soft text-text-main rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-primary-market shadow-sm cursor-pointer disabled:opacity-60 capitalize transition-colors"
         value={selectedCategory ?? ''}
         onChange={(e) => updateFilter('category', e.target.value)}
       >
@@ -66,8 +66,8 @@ export function FilterControls({
 
       {/* Indicator Loading */}
       {isPending && (
-        <div className="flex items-center gap-2 text-xs font-semibold text-[#3B6543] animate-pulse">
-          <div className="w-4 h-4 border-2 border-[#E8E1D5] border-t-[#3B6543] rounded-full animate-spin" />
+        <div className="flex items-center gap-2 text-xs font-semibold text-primary-market animate-pulse">
+          <div className="w-4 h-4 border-2 border-border-soft border-t-primary-market rounded-full animate-spin" />
           <span>Memperbarui data...</span>
         </div>
       )}
