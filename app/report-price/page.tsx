@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Navbar } from '@/components/ui/navbar';
+import { Navbar } from '@/components/layout/navbar';
 import { HelpModal } from '@/components/ui/help-modal';
 import type { PriceReportItem } from '@/lib/schemas';
 

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient as createServerSupabaseClient } from '@/lib/supabase/server';
-import { Navbar } from '@/components/ui/navbar';
+import { Navbar } from '@/components/layout/navbar';
 import { getPaginationMeta } from '@/lib/pagination';
 import { PaginationControls } from '@/components/ui/pagination-controls';
 

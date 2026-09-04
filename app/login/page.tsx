@@ -1,25 +1,39 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Navbar } from '@/components/ui/navbar';
 import { createClient } from '@/lib/supabase/client';
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirectTo') ?? '/';
+  const redirectTo = searchParams.get('redirectTo') ?? '/report-price';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // State loading proteksi auth
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
-  // State baru untuk menangani status butuh konfirmasi email
+  // State untuk menangani status butuh konfirmasi email
   const [isEmailSent, setIsEmailSent] = useState(false);
+
+  // 🔒 PROTEKSI ROUTE: Jika user sudah login, lempar keluar dari halaman login!
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        // Jika sudah login, redirect langsung ke tujuan
+        router.replace(redirectTo);
+      } else {
+        // Jika belum login, tampilkan form login biasa
+        setIsCheckingAuth(false);
+      }
+    });
+  }, [router, redirectTo]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -78,6 +92,16 @@ function LoginContent() {
     }
   }
 
+  // Tampilan sebentar saat sedang mengecek apakah user sudah login
+  if (isCheckingAuth) {
+    return (
+      <main className="max-w-md mx-auto px-6 py-20 text-center space-y-2">
+        <div className="w-6 h-6 border-2 border-[#E8E1D5] border-t-[#3B6543] rounded-full animate-spin mx-auto" />
+        <p className="text-xs text-[#5C6E60]">Memeriksa status akun...</p>
+      </main>
+    );
+  }
+
   return (
     <main className="max-w-md mx-auto px-6 py-12 sm:py-16">
       <div className="bg-white rounded-3xl border border-[#E8E1D5] shadow-sm p-6 sm:p-8 space-y-6">
@@ -115,14 +139,14 @@ function LoginContent() {
                   setIsEmailSent(false);
                   setMode('login');
                 }}
-                className="w-full bg-[#3B6543] text-white hover:bg-[#2D4E33] font-medium py-2.5 rounded-xl text-xs"
+                className="w-full bg-[#3B6543] text-white hover:bg-[#2D4E33] font-medium py-2.5 rounded-xl text-xs cursor-pointer"
               >
                 Sudah Verifikasi? Masuk Sekarang
               </Button>
               <button
                 type="button"
                 onClick={() => setIsEmailSent(false)}
-                className="text-xs text-[#5C6E60] hover:underline"
+                className="text-xs text-[#5C6E60] hover:underline cursor-pointer"
               >
                 Ganti Alamat Email
               </button>
@@ -139,7 +163,7 @@ function LoginContent() {
                   setMode('login');
                   setErrorMessage(null);
                 }}
-                className={`py-2.5 rounded-xl transition-all ${
+                className={`py-2.5 rounded-xl transition-all cursor-pointer ${
                   mode === 'login'
                     ? 'bg-white text-[#223326] shadow-sm font-bold'
                     : 'hover:text-[#223326]'
@@ -153,7 +177,7 @@ function LoginContent() {
                   setMode('signup');
                   setErrorMessage(null);
                 }}
-                className={`py-2.5 rounded-xl transition-all ${
+                className={`py-2.5 rounded-xl transition-all cursor-pointer ${
                   mode === 'signup'
                     ? 'bg-white text-[#223326] shadow-sm font-bold'
                     : 'hover:text-[#223326]'
@@ -210,7 +234,7 @@ function LoginContent() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#3B6543] text-[#FBF8F3] hover:bg-[#2D4E33] font-medium py-3 rounded-xl shadow-sm transition-all mt-2"
+                className="w-full bg-[#3B6543] text-[#FBF8F3] hover:bg-[#2D4E33] font-medium py-3 rounded-xl shadow-sm transition-all mt-2 cursor-pointer"
               >
                 {isLoading
                   ? 'Memproses...'
@@ -227,7 +251,7 @@ function LoginContent() {
                   Belum punya akun?{' '}
                   <button
                     type="button"
-                    className="text-[#3B6543] font-bold hover:underline"
+                    className="text-[#3B6543] font-bold hover:underline cursor-pointer"
                     onClick={() => {
                       setMode('signup');
                       setErrorMessage(null);
@@ -241,7 +265,7 @@ function LoginContent() {
                   Sudah punya akun?{' '}
                   <button
                     type="button"
-                    className="text-[#3B6543] font-bold hover:underline"
+                    className="text-[#3B6543] font-bold hover:underline cursor-pointer"
                     onClick={() => {
                       setMode('login');
                       setErrorMessage(null);
@@ -263,7 +287,6 @@ function LoginContent() {
 export default function LoginPage() {
   return (
     <div className="bg-[#FBF8F3] text-[#223326] min-h-screen font-sans antialiased">
-      <Navbar />
       <Suspense fallback={
         <div className="text-center py-12 text-sm text-[#5C6E60]">
           Memuat halaman login...

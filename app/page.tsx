@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { Navbar } from '@/components/ui/navbar';
+import { Navbar } from '@/components/layout/navbar';
 import { aggregateByCommodity } from '@/lib/price-aggregation';
 import { getPriceIndicator } from '@/lib/price-indicator';
 import { formatRupiah, formatTimeAgo } from '@/lib/utils';

@@ -1,4 +1,4 @@
-import { Navbar } from '@/components/ui/navbar';
+import { Navbar } from '@/components/layout/navbar';
 
 export default function DashboardLoading() {
   return (

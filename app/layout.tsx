@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Newsreader, JetBrains_Mono } from "next/font/google";
 import { ToastNotice } from "@/components/ui/toast-notice";
 import { TopLoader } from "@/components/ui/top-loader";
+import { Footer } from "@/components/layout/footer";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -41,10 +42,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         "font-sans"
       )}
     >
-      {/* Cukup flex flex-col biasa tanpa animate-page-smooth */}
       <body className="min-h-full flex flex-col bg-[#FBF8F3] text-[#223326]">
         <TopLoader />
-        {children}
+
+        <div className="flex-1 flex flex-col">
+          {children}
+        </div>
+
+        <Footer />
+
         <ToastNotice />
       </body>
     </html>

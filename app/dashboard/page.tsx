@@ -4,7 +4,7 @@ import { createClient as createServerSupabaseClient } from '@/lib/supabase/serve
 import { getPriceIndicator } from '@/lib/price-indicator';
 import { aggregateByCommodity } from '@/lib/price-aggregation';
 import { getPaginationMeta } from '@/lib/pagination'; // <--- Import Helper Pagination
-import { Navbar } from '@/components/ui/navbar';
+import { Navbar } from '@/components/layout/navbar';
 import { PaginationControls } from '@/components/ui/pagination-controls'; // <--- Import Reusable Component
 import { FilterControls } from './filter-controls';
 import { WatchlistButton } from './watchlist-button';
