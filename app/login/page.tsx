@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { createClient } from '@/lib/supabase/client';
 
+
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirectTo') ?? '/report-price';
+  const redirectTo = searchParams.get('redirectTo') ?? '/';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,7 +22,7 @@ function LoginContent() {
   // State untuk menangani status butuh konfirmasi email
   const [isEmailSent, setIsEmailSent] = useState(false);
 
-  // 🔒 PROTEKSI ROUTE: Jika user sudah login, lempar keluar dari halaman login!
+  // PROTEKSI ROUTE: Jika user sudah login, lempar keluar dari halaman login!
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {

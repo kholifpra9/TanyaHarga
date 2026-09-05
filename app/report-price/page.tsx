@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Navbar } from '@/components/layout/navbar';
 import { HelpModal } from '@/components/ui/help-modal';
 import type { PriceReportItem } from '@/lib/schemas';
+import { IconHistory, IconLamp, IconScale } from '@/components/ui/icons';
 
 export default function ReportPricePage() {
   const [rawText, setRawText] = useState('');
@@ -106,7 +107,7 @@ export default function ReportPricePage() {
               href="/report-price/history"
               className="inline-flex items-center gap-1 text-xs font-semibold text-primary-market hover:underline bg-primary-market/10 px-3 py-2 rounded-xl"
             >
-              📜 Riwayat
+              <IconHistory size={20} className="text-main shrink-0" /> Riwayat
             </Link>
           </div>
         </div>
@@ -114,7 +115,7 @@ export default function ReportPricePage() {
         {/* Info Banner Tata Cara Singkat */}
         <div className="bg-primary-market/5 border border-primary-market/20 rounded-2xl p-3.5 space-y-1.5 text-xs">
           <div className="flex items-center justify-between font-bold text-primary-market">
-            <span>💡 Tips Format Penulisan Laporan:</span>
+            <span className="inline-flex items-center gap-2"><IconLamp size={15} className="text-main shrink-0" /> Tips Format Penulisan Laporan:</span>
             <button
               onClick={() => setShowHelpModal(true)}
               className="underline hover:text-primary-market/80 text-[11px] cursor-pointer"
@@ -138,8 +139,8 @@ export default function ReportPricePage() {
           />
 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <span className="text-[11px] text-text-muted">
-              ⚖️ Sertakan satuan acuan seperti <em>kg, liter, ons, ikat, atau pcs</em>.
+            <span className="inline-flex items-center gap-2 text-[11px] text-text-muted">
+              <IconScale size={20} className="text-main shrink-0" /> Sertakan satuan acuan seperti <em>kg, liter, ons, ikat, atau pcs</em>.
             </span>
             <Button
               onClick={handleSubmit}

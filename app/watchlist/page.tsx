@@ -8,6 +8,7 @@ import { WatchlistButton } from '@/app/dashboard/watchlist-button';
 import { Navbar } from '@/components/layout/navbar';
 import { getPaginationMeta } from '@/lib/pagination';
 import { PaginationControls } from '@/components/ui/pagination-controls';
+import {IconArrowRight, IconStar} from '@/components/ui/icons';
 
 type PriceRow = {
   commodity_id: string;
@@ -55,7 +56,7 @@ export default async function WatchlistPage({ searchParams }: PageProps) {
         <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12 space-y-4">
           <div className="bg-white rounded-3xl border border-border-soft p-6 sm:p-8 text-center space-y-4 shadow-sm">
             <div className="w-12 h-12 bg-primary-market/10 text-primary-market rounded-full flex items-center justify-center mx-auto text-xl">
-              📌
+              <IconStar size={35} className="text-main shrink-0" />
             </div>
             <div className="space-y-1">
               <h1 className="text-2xl font-serif font-bold text-text-main">Watchlist Saya</h1>
@@ -64,9 +65,9 @@ export default async function WatchlistPage({ searchParams }: PageProps) {
             <div>
               <Link
                 href="/dashboard"
-                className="inline-block bg-primary-market text-white hover:bg-primary-market/90 px-5 py-2.5 rounded-xl text-xs font-semibold shadow-sm transition-all"
+                className="inline-flex items-center gap-2 bg-primary-market text-white hover:bg-primary-market/90 px-5 py-2.5 rounded-xl text-xs font-semibold shadow-sm transition-all"
               >
-                Cari Komoditas di Dashboard →
+                Cari Komoditas di Dashboard <IconArrowRight size={15} className="text-main shrink-0" />
               </Link>
             </div>
           </div>

@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useTransition } from 'react';
+import { IconArrowLeft, IconArrowRight } from './icons';
 
 type PaginationControlsProps = {
   currentPage: number;
@@ -45,16 +46,16 @@ export function PaginationControls({
         <button
           onClick={() => goToPage(currentPage - 1)}
           disabled={currentPage <= 1 || isPending}
-          className="px-3.5 py-1.5 rounded-xl border border-[#E8E1D5] bg-white font-medium text-[#223326] hover:bg-[#FBF8F3] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-xs"
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-[#E8E1D5] bg-white font-medium text-[#223326] hover:bg-[#FBF8F3] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-xs"
         >
-          ← Sebelum
+          <IconArrowLeft size={20} className="text-main shrink-0" /> Sebelum
         </button>
         <button
           onClick={() => goToPage(currentPage + 1)}
           disabled={currentPage >= totalPages || isPending}
-          className="px-3.5 py-1.5 rounded-xl border border-[#E8E1D5] bg-white font-medium text-[#223326] hover:bg-[#FBF8F3] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-xs"
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-[#E8E1D5] bg-white font-medium text-[#223326] hover:bg-[#FBF8F3] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-xs"
         >
-          Selanjutnya →
+          Selanjutnya <IconArrowRight size={20} className="text-main shrink-0" />
         </button>
       </div>
     </div>

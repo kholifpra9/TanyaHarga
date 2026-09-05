@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Navbar } from '@/components/layout/navbar';
 import { HelpModal } from '@/components/ui/help-modal';
 import type { PriceAnswer } from '@/lib/schemas';
+import { IconLamp } from '@/components/ui/icons';
 
 function AskPriceContent() {
   const searchParams = useSearchParams();
@@ -97,7 +98,7 @@ function AskPriceContent() {
       {/* Info Banner */}
       <div className="bg-primary-market/5 border border-primary-market/20 rounded-2xl p-3.5 space-y-1.5 text-xs">
         <div className="flex items-center justify-between font-bold text-primary-market">
-          <span>💡 Tips Tanya Harga:</span>
+          <span className="inline-flex items-center gap-2"><IconLamp size={15} className="text-main shrink-0" /> Tips Tanya Harga:</span>
           <button
             onClick={() => setShowHelpModal(true)}
             className="underline hover:text-primary-market/80 text-[11px] cursor-pointer"
@@ -121,8 +122,8 @@ function AskPriceContent() {
         />
 
         <div className="flex justify-between items-center">
-          <span className="text-xs text-text-muted/80">
-            💡 Boleh tanya beberapa komoditas sekaligus
+          <span className="inline-flex items-center gap-2 text-xs text-text-muted/80">
+            <IconLamp size={15} className="text-main shrink-0" /> Boleh tanya beberapa komoditas sekaligus
           </span>
           <Button
             onClick={handleSubmit}

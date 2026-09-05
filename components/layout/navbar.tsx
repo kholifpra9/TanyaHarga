@@ -7,6 +7,7 @@ import { Logo } from '@/components/ui/logo';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
+import {IconLogout, IconPlus, IconStar} from '@/components/ui/icons';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -141,14 +142,14 @@ export function Navbar() {
                             onClick={() => setIsMenuOpen(false)}
                             className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[#223326] hover:bg-[#3B6543]/10 hover:text-[#3B6543] rounded-xl transition-all"
                           >
-                            <span>📌</span> Watchlist Komoditas
+                            <span><IconStar size={20} className="text-main shrink-0" /></span> Watchlist Komoditas
                           </Link>
                           <Link
                             href="/report-price"
                             onClick={() => setIsMenuOpen(false)}
                             className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[#223326] hover:bg-[#3B6543]/10 hover:text-[#3B6543] rounded-xl transition-all"
                           >
-                            <span>✍️</span> Lapor Harga Baru
+                            <span><IconPlus size={20} className="text-main shrink-0" /></span> Lapor Harga Baru
                           </Link>
                         </div>
 
@@ -162,7 +163,7 @@ export function Navbar() {
                             className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-[#C86D51] hover:bg-[#FDF2F0] hover:text-[#B05238] rounded-xl transition-all cursor-pointer"
                           >
                             <span>Keluar dari Akun</span>
-                            <span>🚪</span>
+                            <span><IconLogout size={20} className="text-main shrink-0" /></span>
                           </button>
                         </div>
                       </div>
@@ -253,7 +254,7 @@ export function Navbar() {
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="bg-white rounded-3xl border border-[#E8E1D5] max-w-xs sm:max-w-sm w-full p-6 shadow-2xl space-y-4 text-center my-auto animate-in zoom-in-95 duration-150">
             <div className="w-12 h-12 bg-[#FDF2F0] text-[#C86D51] rounded-full flex items-center justify-center mx-auto text-xl font-bold">
-              🚪
+              <IconLogout size={30} className="text-main shrink-0" />
             </div>
             <div className="space-y-1">
               <h3 className="font-serif font-bold text-lg text-[#223326]">

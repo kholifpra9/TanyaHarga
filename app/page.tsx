@@ -6,6 +6,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { aggregateByCommodity } from '@/lib/price-aggregation';
 import { getPriceIndicator } from '@/lib/price-indicator';
 import { formatRupiah, formatTimeAgo } from '@/lib/utils';
+import {IconArrowRight, IconClipboard} from '@/components/ui/icons';
 
 const TICKER_SIZE = 5;
 
@@ -102,8 +103,8 @@ export default async function LandingPage() {
               </form>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between px-1 pt-1 text-xs text-text-muted gap-1">
                 <span>Tanya harga tanpa perlu isi form rumit</span>
-                <Link href="/ask-price" className="text-primary-market font-semibold hover:underline">
-                  Buka Laman Tanya Harga →
+                <Link href="/ask-price" className="inline-flex items-center gap-2 text-primary-market font-semibold hover:underline">
+                  Buka Laman Tanya Harga <IconArrowRight size={15} className="text-main shrink-0" />
                 </Link>
               </div>
             </div>
@@ -134,11 +135,11 @@ export default async function LandingPage() {
         <div className="bg-white rounded-3xl border border-border-soft p-6 sm:p-8 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border-soft pb-4 mb-6">
             <div>
-              <h2 className="font-serif font-bold text-2xl text-text-main">📋 Papan Pantau Hari Ini</h2>
+              <h2 className="inline-flex items-center gap-2 font-serif font-bold text-2xl text-text-main"><IconClipboard size={30} className="text-main shrink-0" /> Papan Pantau Hari Ini</h2>
               <p className="text-xs text-text-muted mt-0.5">Rata-rata terhitung dari laporan warga terkini</p>
             </div>
-            <Link href="/dashboard" className="text-xs font-semibold text-primary-market hover:underline mt-2 sm:mt-0">
-              Lihat Dashboard →
+            <Link href="/dashboard" className="inline-flex items-center gap-2 text-xs font-semibold text-primary-market hover:underline mt-2 sm:mt-0">
+              Lihat Dashboard <IconArrowRight size={15} className="text-main shrink-0" />
             </Link>
           </div>
 

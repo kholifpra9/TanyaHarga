@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/ui/logo';
 import { createClient } from '@/lib/supabase/client';
+import {IconAccount} from '@/components/ui/icons';
 
 export function Footer() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -78,8 +79,8 @@ export function Footer() {
               <ul className="space-y-2.5 font-medium">
                 {userEmail ? (
                   <>
-                    <li className="text-[11px] text-[#3B6543] font-semibold truncate bg-[#FBF8F3] px-2 py-1 rounded-lg border border-[#E8E1D5]">
-                      👤 {userEmail}
+                    <li className="inline-flex items-center gap-2 text-[11px] text-[#3B6543] font-semibold truncate bg-[#FBF8F3] px-2 py-1 rounded-lg border border-[#E8E1D5]">
+                      <IconAccount size={15} className="text-main shrink-0" /> {userEmail}
                     </li>
                     <li>
                       <Link href="/report-price/history" className="text-[#5C6E60] hover:text-[#3B6543] transition-colors">
